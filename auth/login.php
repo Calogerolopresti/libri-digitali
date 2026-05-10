@@ -1,3 +1,47 @@
+<?php
+// importo collegamento al db e avvio la sessione se non è già avviata 
+require_once '../config/db.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// se inviano il form in pagina con method post entrano nell if 
+if($_SERVER['REQUEST_METHOD']==='POST'){
+    // salvo le credenziali inviate tramite post 
+    $email = $_POST['email'];
+    $password= $_POST['password'];
+
+    // faccio la query per cercare l utente con quella data email 
+    $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+
+    // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database. 
+    if($user && password_verify($password,$user['password'])){
+        // se lutente esiste e la pass coincice mi salvo le informazioni dell utente nella sessione 
+        $_SESSION['user_id']=$user['id'];
+        $_SESSION['user_nome']=$user['nome'];
+        $_SESSION['user_email']=$user['email'];
+        $_SESSION['ruolo']=$user['ruolo'];
+        // reindirizzo l utente in base al suo ruolo 
+        if($user['ruolo']==='admin'){
+            header('Location:../admin/index.php');
+            exit();
+        }else{
+           header('Location:../index-logged.php');
+            exit(); 
+        }
+
+    }else{
+        $errore='email o password non corrette';
+    }
+
+}
+
+?>
+
+
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in ">
 
@@ -13,7 +57,8 @@
                         <p class="text-muted">Accedi al tuo account per continuare a leggere</p>
                     </div>
                     
-                    <form method="POST" action="#">
+                    <form method="POST" action="">
+                        <?php if(isset($errore)) echo "<p style='color: red'>$errore</p>"?>
                         <div class="mb-4">
                             <label for="email" class="form-label">Email</label>
                             <div class="input-group-custom">
