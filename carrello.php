@@ -97,7 +97,7 @@
                             <span class="fw-bold fs-3 text-primary">€ 28.39</span>
                         </div>
                         
-                        <button class="btn btn-primary w-100 py-3 text-uppercase fw-bold shadow-sm rounded-pill mb-3">
+                        <button type="button" class="btn btn-primary w-100 py-3 text-uppercase fw-bold shadow-sm rounded-pill mb-3" data-bs-toggle="modal" data-bs-target="#checkoutModal">
                             Procedi al Checkout <i class="fa-solid fa-arrow-right ms-2"></i>
                         </button>
                         
@@ -112,6 +112,51 @@
         </div>
     </main>
 
-    
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold text-secondary-color" id="checkoutModalLabel"><i class="fa-solid fa-credit-card me-2 text-primary"></i>Checkout Simulato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-shield-halved text-success" style="font-size: 3rem;"></i>
+                    </div>
+                    <h6 class="fw-bold mb-3">Questo è un sito dimostrativo</h6>
+                    <p class="text-muted mb-4">Non verranno richiesti o elaborati dati di pagamento reali. Clicca su "Simula Pagamento" per completare l'ordine in modo fittizio.</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary py-2 rounded-pill fw-bold" onclick="simulatePayment(this)">
+                            Simula Pagamento € 28.39
+                        </button>
+                        <button type="button" class="btn btn-light py-2 rounded-pill fw-medium" data-bs-dismiss="modal">Annulla</button>
+                    </div>
+                    <div id="paymentSuccess" class="alert alert-success mt-3 d-none rounded-3 text-start" role="alert">
+                        <i class="fa-solid fa-circle-check me-2"></i>Pagamento simulato con successo! Ritorno alla home...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function simulatePayment(btn) {
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Elaborazione...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            document.getElementById('paymentSuccess').classList.remove('d-none');
+            btn.classList.add('d-none');
+            btn.nextElementSibling.classList.add('d-none'); // Nasconde il tasto Annulla
+            
+            // Simula redirect dopo 2 secondi
+            setTimeout(() => {
+                window.location.href = 'index.php?payment=success';
+            }, 2000);
+        }, 1500);
+    }
+    </script>
+
 
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
