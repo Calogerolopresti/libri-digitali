@@ -1,3 +1,17 @@
+<?php
+// importo collegamento al db e avvio la sessione se non è già avviata 
+require_once __DIR__ . '/../config/db.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// controllo se l utente è con ruolo user o se ha mai fatto accesso e se non lo è lo butto fuori 
+if(!isset($_SESSION['user_id']) || $_SESSION['ruolo']!=='admin'){
+    header('Location:../index.php');
+    exit();
+}
+?>
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
