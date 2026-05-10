@@ -17,6 +17,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $stmt->execute([$email]);
         $user = $stmt->fetch();
     }catch(PDOException $e){
+        // se la query va male salviamo l errore nel file di log e mostriamo un errore all utente 
         error_log("errore al login ".$e->getMessage());
         $errore = "Si è verificato un problema tecnico. Riprova più tardi.";;
     }
