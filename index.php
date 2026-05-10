@@ -32,6 +32,7 @@ include 'includes/select_prodotti.php';
         <div class="mb-4 pb-2 border-bottom">
             <h2 class="fw-bold mb-0 text-secondary-color">Catalogo</h2>
         </div>
+        <!-- se non ce nessun libro mostro che non ci sono libri nel catalogo  -->
         <?php if(count($libri)<=0):?>
             <p>Nessun Libro disponibile</p>
         <?php else:?>    
