@@ -12,9 +12,15 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     $password= $_POST['password'];
 
     // faccio la query per cercare l utente con quella data email 
-    $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    try{
+        $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+    }catch(PDOException $e){
+        error_log("errore al login ".$e->getMessage());
+        $errore = "Si è verificato un problema tecnico. Riprova più tardi.";;
+    }
+    
 
     // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database. 
     if($user && password_verify($password,$user['password'])){
