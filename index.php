@@ -1,3 +1,16 @@
+<?php
+// importo collegamento al db e avvio la sessione se non è già avviata 
+require_once __DIR__ . '/config/db.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+//  includo la funzione che mi salva i libri nel database 
+include 'includes/select_prodotti.php';
+
+?>
+
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in ">
 
@@ -19,75 +32,34 @@
         <div class="mb-4 pb-2 border-bottom">
             <h2 class="fw-bold mb-0 text-secondary-color">Catalogo</h2>
         </div>
-        
-        <div class="row g-4 mb-5">
-            <!-- Esempio Card 1 (Libro Fisico) -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <img src="https://via.placeholder.com/300x450/f8f9fa/d4af37?text=Il+Nome+della+Rosa" class="book-cover" alt="Copertina">
+        <?php if(count($libri)<=0):?>
+            <p>Nessun Libro disponibile</p>
+        <?php else:?>    
+            <div class="row g-4 mb-5">
+                <?php foreach($libri as $libro):?>
+                <!-- Esempio Card 1 (Libro Fisico) -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <a style="text-decoration: none;" href="prodotto.php?id=<?php echo $libro['id']?>">
+                            <div class="card book-card">
+                                <div class="card-img-wrapper">
+                                    <img src="<?php echo $libro['copertina']?>" class="book-cover" alt="Copertina">
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <?php if($libro['formato']=='fisico'):?>
+                                        <span class="badge bg-success mb-3 align-self-start"><i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea</span>
+                                    <?php else:?>
+                                        <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
+                                    <?php endif?>    
+                                    <h5 class="card-title"><?php echo $libro['titolo']?></h5>
+                                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                                        <span class="price">€ <?php echo $libro['prezzo']?></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>        
                     </div>
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-success mb-3 align-self-start"><i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea</span>
-                        <h5 class="card-title">Il Nome della Rosa</h5>
-                        <p class="text-muted small mb-3">Umberto Eco</p>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="price">€ 14.50</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Esempio Card 2 (eBook) -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <img src="https://via.placeholder.com/300x450/f8f9fa/d4af37?text=1984" class="book-cover" alt="Copertina">
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
-                        <h5 class="card-title">1984</h5>
-                        <p class="text-muted small mb-3">George Orwell</p>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="price">€ 8.99</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Esempio Card 3 (Libro Fisico) -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <img src="https://via.placeholder.com/300x450/f8f9fa/d4af37?text=Il+Signore+Degli+Anelli" class="book-cover" alt="Copertina">
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-success mb-3 align-self-start"><i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea</span>
-                        <h5 class="card-title">Il Signore degli Anelli</h5>
-                        <p class="text-muted small mb-3">J.R.R. Tolkien</p>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="price">€ 25.00</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Esempio Card 4 (eBook) -->
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card book-card">
-                    <div class="card-img-wrapper">
-                        <img src="https://via.placeholder.com/300x450/f8f9fa/d4af37?text=Fondazione" class="book-cover" alt="Copertina">
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
-                        <h5 class="card-title">Fondazione</h5>
-                        <p class="text-muted small mb-3">Isaac Asimov</p>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="price">€ 7.50</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <?php endforeach?>
+        <?php endif?>        
         </div>
     </main>
 
