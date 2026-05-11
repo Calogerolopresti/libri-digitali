@@ -28,22 +28,38 @@ if (isset($_GET['id'])) {
 }
 
 if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // verifico che lutente che metta il libro nel carrello sia un cliente 
+    // definisco $id recuperandolo dal GET
+    $id = $_GET['id'];
+
+    // verifico che l'utente sia un cliente
     if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
-        // verifico che la quantità sia disponibile 
-        if ($_POST['quantita'] <= $quantitaMassima) {
+
+        // 2. cast a int per sicurezza e recupero quantità
+        $quantita = (int)$_POST['quantita'];
+
+        // calcolo la quantità già presente nel carrello per questo specifico ID
+        if (isset($_SESSION['carrello'][$id])) {
+            $quantitaGiaInCarrello = $_SESSION['carrello'][$id];
+        } else {
+            $quantitaGiaInCarrello = 0;
+        }
+        $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
+
+        if ($quantitaRichiestaTotal <= $quantitaMassima) {
+            // Inizializzo il carrello se non esiste
             if (!isset($_SESSION['carrello'])) {
                 $_SESSION['carrello'] = [];
             }
-            $quantita = $_POST['quantita'];
-            $_SESSION['carrello'][$id] = $quantita;
+
+            // 4. aggiorno la quantità nel carrello
+            $_SESSION['carrello'][$id] = $quantitaRichiestaTotal;
+
             $messaggio = "Prodotto aggiunto correttamente al carrello";
         } else {
-            $errore = "Impossibile aggiungere il prodotto al carrello. Quantità non disponibile";
+            $errore = "Quantità richiesta non disponibile (Massimo disponibile: $quantitaMassima)";
         }
     } else {
-        // se il cliente non è un user lo butto alla pagina di login 
-        header('Location:auth/login.php');
+        header('Location: auth/login.php');
         exit();
     }
 }
@@ -53,6 +69,7 @@ if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
+    <!-- mostro una navbar diversa in base all user  -->
     <?php if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
         include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php';
     } else {
