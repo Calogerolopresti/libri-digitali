@@ -14,21 +14,74 @@ if (isset($_GET['id'])) {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$id]);
         $libro = $stmt->fetch();
+        // imposto ka quantità massima anche in base al formato del libro 
+        if ($libro['formato'] == 'digitale') {
+            $quantitaMassima = 1;
+        } else {
+            $quantitaMassima = $libro['disponibilita'];
+        }
     } catch (PDOException $e) {
         // in caso di errore mi salvo l errore nel file log e inizzilizo l array vuoto 
         error_log("errore alla ricerca del singolo libro: " . $e->getMessage());
         $libro = [];
     }
 }
+
+if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // verifico che lutente che metta il libro nel carrello sia un cliente 
+    if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
+        // verifico che la quantità sia disponibile 
+        if ($_POST['quantita'] <= $quantitaMassima) {
+            if (!isset($_SESSION['carrello'])) {
+                $_SESSION['carrello'] = [];
+            }
+            $quantita = $_POST['quantita'];
+            $_SESSION['carrello'][$id] = $quantita;
+            $messaggio = "Prodotto aggiunto correttamente al carrello";
+        } else {
+            $errore = "Impossibile aggiungere il prodotto al carrello. Quantità non disponibile";
+        }
+    } else {
+        // se il cliente non è un user lo butto alla pagina di login 
+        header('Location:auth/login.php');
+        exit();
+    }
+}
 ?>
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_public.php'; ?>
+    <?php if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
+        include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php';
+    } else {
+        include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_public.php';
+    }
+    ?>
 
     <!-- Product Detail -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
+        <?php if (!empty($messaggio)): ?>
+            <div class="alert alert-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span><?php echo htmlspecialchars($messaggio); ?></span>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($errore)): ?>
+            <div class="alert alert-error">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span><?php echo htmlspecialchars($errore); ?></span>
+            </div>
+        <?php endif; ?>
         <!-- controllo che l array libro esista e abbia qualcosa dentro  -->
         <?php if (isset($libro) && count($libro) > 0): ?>
             <div class="row g-5 align-items-start">
@@ -56,28 +109,32 @@ if (isset($_GET['id'])) {
                         </p>
                     </div>
 
-                    <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white rounded-3 shadow-sm border border-light">
-                        <form action="" method="POST">
+                    <form action="" method="POST">
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white rounded-3 shadow-sm border border-light">
                             <div class="d-flex align-items-center me-2">
                                 <label for="quantita" class="fw-medium text-muted mb-0 me-3">Quantità:</label>
                                 <div class="qty-selector d-flex align-items-center">
                                     <?php if ($libro['formato'] == 'digitale'): ?>
                                         <!-- se il formato è digitale imposto come limite massimo 1  -->
                                         <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
-                                        <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" value="1" min="1" max="1">
+                                        <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" name="quantita" value="1" min="1" max="1">
                                         <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
                                     <?php else: ?>
                                         <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
-                                        <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" value="1" min="1" max="10">
+                                        <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" name="quantita" value="1" min="1" max="<?php echo htmlspecialchars($libro['disponibilita']) ?>">
                                         <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
                                     <?php endif ?>
                                 </div>
                             </div>
+
                             <button type="submit" class="btn btn-primary btn-lg flex-grow-1 rounded-3 ms-auto shadow-sm fw-bold">
                                 <i class="fa-solid fa-cart-plus me-2"></i> Aggiungi al Carrello
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                        <?php if ($libro['formato'] != 'digitale'): ?>
+                            <p class="text-muted" style="line-height: 1.8;">Disponibilità: <?php echo htmlspecialchars($libro['disponibilita']) ?></p>
+                        <?php endif ?>
+                    </form>
 
                     <hr class="my-4 text-muted">
                     <div class="text-muted small">
