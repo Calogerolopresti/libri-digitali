@@ -15,9 +15,11 @@
                 <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
                     <a href="/libri-digitali/carrello.php" class="btn btn-outline-primary nav-btn px-4 position-relative">
                         <i class="fa-solid fa-cart-shopping"></i> Carrello
+                        <?php if(isset($_SESSION['carrello']) && count($_SESSION['carrello'])>0):?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
-                            2
+                            <?php echo htmlspecialchars(count($_SESSION['carrello']))?>
                         </span>
+                        <?php endif?>
                     </a>
                     <a href="/libri-digitali/profilo.php" class="btn btn-primary nav-btn px-4 shadow-sm">
                         <i class="fa-regular fa-user"></i> Storico Ordini
