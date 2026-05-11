@@ -40,10 +40,10 @@ include 'includes/select_prodotti.php';
                 <?php foreach($libri as $libro):?>
                 <!-- Esempio Card 1 (Libro Fisico) -->
                     <div class="col-12 col-sm-6 col-lg-3">
-                        <a style="text-decoration: none;" href="prodotto.php?id=<?php echo $libro['id']?>">
+                        <a style="text-decoration: none;" href="prodotto.php?id=<?php echo htmlspecialchars($libro['id'])?>">
                             <div class="card book-card">
                                 <div class="card-img-wrapper">
-                                    <img src="<?php echo $libro['copertina']?>" class="book-cover" alt="Copertina">
+                                    <img src="<?php echo htmlspecialchars($libro['copertina'])?>" class="book-cover" alt="Copertina">
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <?php if($libro['formato']=='fisico'):?>
@@ -51,9 +51,9 @@ include 'includes/select_prodotti.php';
                                     <?php else:?>
                                         <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
                                     <?php endif?>    
-                                    <h5 class="card-title"><?php echo $libro['titolo']?></h5>
+                                    <h5 class="card-title"><?php echo htmlspecialchars($libro['titolo'])?></h5>
                                     <div class="mt-auto d-flex justify-content-between align-items-center">
-                                        <span class="price">€ <?php echo $libro['prezzo']?></span>
+                                        <span class="price">€ <?php echo htmlspecialchars($libro['prezzo'])?></span>
                                     </div>
                                 </div>
                             </div>

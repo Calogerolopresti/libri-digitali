@@ -4,45 +4,55 @@ require_once '../config/db.php';
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+// inizzializzo la variabile di sessione per verificare i tentativi se non esiste già 
+if(!isset($_SESSION['tentativi'])){
+    $_SESSION['tentativi']=0;
+}
 
 // se inviano il form in pagina con method post entrano nell if 
 if($_SERVER['REQUEST_METHOD']==='POST'){
-    // salvo le credenziali inviate tramite post 
-    $email = $_POST['email'];
-    $password= $_POST['password'];
+    // prima di fare la chiamata al db controllo che i tentativi non siano stati superati 
+    if($_SESSION['tentativi']<=4){
+        $_SESSION['tentativi']++;
+            // salvo le credenziali inviate tramite post 
+        $email = $_POST['email'];
+        $password= $_POST['password'];
 
-    // faccio la query per cercare l utente con quella data email 
-    try{
-        $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-    }catch(PDOException $e){
-        // se la query va male salviamo l errore nel file di log e mostriamo un errore all utente 
-        error_log("errore al login ".$e->getMessage());
-        $errore = "Si è verificato un problema tecnico. Riprova più tardi.";;
-    }
-    
-
-    // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database. 
-    if($user && password_verify($password,$user['password'])){
-        // se lutente esiste e la pass coincice mi salvo le informazioni dell utente nella sessione 
-        $_SESSION['user_id']=$user['id'];
-        $_SESSION['user_nome']=$user['nome'];
-        $_SESSION['user_email']=$user['email'];
-        $_SESSION['ruolo']=$user['ruolo'];
-        // reindirizzo l utente in base al suo ruolo 
-        if($user['ruolo']==='admin'){
-            header('Location:../admin/index.php');
-            exit();
-        }else{
-           header('Location:../index-logged.php');
-            exit(); 
+        // faccio la query per cercare l utente con quella data email 
+        try{
+            $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+        }catch(PDOException $e){
+            // se la query va male salviamo l errore nel file di log e mostriamo un errore all utente 
+            error_log("errore al login ".$e->getMessage());
+            $errore = "Si è verificato un problema tecnico. Riprova più tardi.";;
         }
+        
 
+        // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database. 
+        if($user && password_verify($password,$user['password'])){
+            // se lutente esiste e la pass coincice mi salvo le informazioni dell utente nella sessione 
+            $_SESSION['user_id']=$user['id'];
+            $_SESSION['user_nome']=$user['nome'];
+            $_SESSION['user_email']=$user['email'];
+            $_SESSION['ruolo']=$user['ruolo'];
+            // reindirizzo l utente in base al suo ruolo 
+            if($user['ruolo']==='admin'){
+                header('Location:../admin/index.php');
+                exit();
+            }else{
+            header('Location:../index-logged.php');
+                exit(); 
+            }
+
+        }else{
+            $errore='email o password non corrette, Tentativi: '.$_SESSION['tentativi'];
+        }
     }else{
-        $errore='email o password non corrette';
+        // se i tentativi sono stati superati lo mostro a schermo 
+        $errore="Troppi tentativi, Riprova più tardi";
     }
-
 }
 
 ?>
