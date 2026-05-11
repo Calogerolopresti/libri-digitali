@@ -39,7 +39,7 @@ if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // calcolo la quantità già presente nel carrello per questo specifico ID
         if (isset($_SESSION['carrello'][$id])) {
-            $quantitaGiaInCarrello = $_SESSION['carrello'][$id];
+            $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'];
         } else {
             $quantitaGiaInCarrello = 0;
         }

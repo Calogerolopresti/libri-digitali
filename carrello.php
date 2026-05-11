@@ -45,7 +45,7 @@ $somma = 0.00;
                                 </thead>
                                 <tbody class="border-top-0">
                                     <?php foreach ($_SESSION['carrello'] as $id => $dati):
-                                        $somma = $somma + ($dati['quantita'] * (float) str_replace(',', '.', $dati['prezzo']));
+                                        $somma = $somma + ($dati['quantita'] * (float)$dati['prezzo']);
                                     ?>
                                         <tr>
                                             <td class="ps-4 py-4">
@@ -65,7 +65,7 @@ $somma = 0.00;
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-muted fw-medium">€ <?php echo number_format((float) str_replace(',', '.', $dati['prezzo']), 2, ',', '.'); ?></td>
+                                            <td class="text-muted fw-medium">€ <?php echo $dati['prezzo']; ?></td>
                                             <td>
                                                 <div class="qty-selector d-inline-flex align-items-center" style="border:none!important;background-color:transparent!important;">
                                                     <p style="margin-left: 48px; margin-top: 15px;"><?php echo htmlspecialchars($dati['quantita']) ?></p>
@@ -74,8 +74,8 @@ $somma = 0.00;
                                                 <button class="btn qty-btn shadow-sm" type="button" onclick="this.parentNode.querySelector('input[type=number]').stepUp()"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button> -->
                                                 </div>
                                             </td>
-                                            <?php (float)$totale= number_format($dati['quantita'] * (float) str_replace(',', '.', $dati['prezzo']), 2, ',', '.'); ?>
-                                            <td class="text-end fw-bold text-primary">€ <?php echo (float) str_replace(',', '.', $totale), 2, ',', '.'?></td>
+                                            <?php (float)$totale= $dati['quantita'] * (float)$dati['prezzo']; ?>
+                                            <td class="text-end fw-bold text-primary">€ <?php echo (float)$totale?></td>
                                             <td class="text-center pe-4">
                                                 <button class="btn btn-outline-danger btn-round-perfect shadow-sm border-0" title="Rimuovi"><i class="fa-solid fa-trash-can"></i></button>
                                             </td>
@@ -96,7 +96,7 @@ $somma = 0.00;
 
                         <div class="d-flex justify-content-between mb-3 text-muted">
                             <span>Subtotale (<?php echo htmlspecialchars(count($_SESSION['carrello'])) ?> articoli)</span>
-                            <span class="fw-medium">€ 23.49</span>
+                            <span class="fw-medium">€ <?php echo (float)$somma?></span>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center border-top pt-4 mb-4">
@@ -135,7 +135,7 @@ $somma = 0.00;
                     <p class="text-muted mb-4">Non verranno richiesti o elaborati dati di pagamento reali. Clicca su "Simula Pagamento" per completare l'ordine in modo fittizio.</p>
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-primary py-2 rounded-pill fw-bold" onclick="simulatePayment(this)">
-                            Simula Pagamento € 28.39
+                            Simula Pagamento € <?php echo (float)$totale?>
                         </button>
                         <button type="button" class="btn btn-light py-2 rounded-pill fw-medium" data-bs-dismiss="modal">Annulla</button>
                     </div>
