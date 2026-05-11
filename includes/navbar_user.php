@@ -1,7 +1,7 @@
     <!-- Navbar Sticky -->
     <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/libri-digitali/index.php">
+            <a class="navbar-brand d-flex align-items-center" href="/libri-digitali/index-logged.php">
                 <i class="fa-solid fa-book-open me-2 text-primary"></i>
                 E-Book & Co. 
             </a>
