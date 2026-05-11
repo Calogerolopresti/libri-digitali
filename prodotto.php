@@ -52,7 +52,13 @@ if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // 4. aggiorno la quantità nel carrello
-            $_SESSION['carrello'][$id] = $quantitaRichiestaTotal;
+            $_SESSION['carrello'][$id] = [
+                'titolo'    => $libro['titolo'],
+                'copertina' => $libro['copertina'],
+                'formato'   => $libro['formato'],
+                'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
+                'quantita'  => $quantitaRichiestaTotal
+            ];
 
             $messaggio = "Prodotto aggiunto correttamente al carrello";
         } else {
