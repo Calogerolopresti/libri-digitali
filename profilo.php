@@ -1,3 +1,15 @@
+<?php
+// importo collegamento al db e avvio la sessione se non è già avviata 
+require_once __DIR__ . '/config/db.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+
+
+?>
+
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
@@ -5,7 +17,7 @@
 
 <!-- Profile Content -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
-        <h2 class="fw-bold text-secondary-color mb-4">Ciao, <span class="text-primary">Mario Rossi</span>!</h2>
+        <h2 class="fw-bold text-secondary-color mb-4">Ciao, <span class="text-primary"><?php echo htmlspecialchars($_SESSION['user_nome'])?></span>!</h2>
         
         <div class="row g-4">
             <!-- Personal Info Card -->
@@ -22,7 +34,7 @@
                             </div>
                         </div>
                         <ul class="list-unstyled mb-4 text-muted" style="line-height: 2;">
-                            <li class="mb-2"><i class="fa-regular fa-envelope text-primary me-2 text-center" style="width: 20px;"></i> mario.rossi@example.com</li>
+                            <li class="mb-2"><i class="fa-regular fa-envelope text-primary me-2 text-center" style="width: 20px;"></i><?php echo htmlspecialchars($_SESSION['user_email'])?></li>
                         </ul>
                         <button class="btn btn-outline-primary w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="fa-solid fa-pen-to-square me-2"></i> Modifica Profilo</button>
                     </div>

@@ -86,17 +86,21 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
         foreach ($carrello as $item) {
             $totale_calcolato += $item['prezzo'] * $item['quantita'];
         }
+        
+        // Ottieni la data e l'ora corrente
+        $data_ordine = date('Y-m-d H:i:s');
+
         try {
             // iniziamo la transazione con pdo 
             $pdo->beginTransaction();
-            $sql_ordine = "INSERT INTO Ordini (id_utente,totale_ordine) VALUES (?,?)";
+            $sql_ordine = "INSERT INTO Ordini (id_utente, totale_ordine, data_ordine) VALUES (?, ?, ?)";
             $stmt = $pdo->prepare($sql_ordine);
-            $stmt->execute([$id_utente, $totale_calcolato]);
+            $stmt->execute([$id_utente, $totale_calcolato, $data_ordine]);
 
             // recuperiamo l ultimo id crearo nell insert 
             $id_ordine_creato = $pdo->lastInsertId();
 
-            $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine,id_prodotto,quantita,prezzo_unitario) VALUES (?,?,?,?)";
+            $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario) VALUES (?,?,?,?)";
             $stmt_dettagli = $pdo->prepare($sql_dettagli);
             $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta WHERE id = :id_prod AND formato = 'fisico'";
             $stmt_quantita = $pdo->prepare($sql_quantita);
