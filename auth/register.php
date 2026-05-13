@@ -38,12 +38,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="mb-5 form-check">
-                            <input type="checkbox" class="form-check-input" id="termini" required>
-                            <label class="form-check-label text-muted small" for="termini">
-                                Accetto i <a href="#" class="text-primary text-decoration-none">Termini di Servizio</a> e la <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
-                            </label>
-                        </div>
+
                         <button type="submit" class="btn btn-primary w-100 py-3 text-uppercase">
                             Registrati <i class="fa-solid fa-check ms-2"></i>
                         </button>
