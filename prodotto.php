@@ -1,73 +1,74 @@
 <?php
-// importo collegamento al db e avvio la sessione se non è già avviata 
 require_once __DIR__ . '/config/db.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-// controllo se esiste la variabile id nel link 
+
+// 1. Inizializziamo le variabili per evitare errori "Undefined variable"
+$libro = null;
+$errore = "";
+$messaggio = "";
+
+// controlliamo de nell link è stato inserito id del libro da cercare 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
+    // facciamo la select del libro col try catch 
     try {
-        // cerco il libri con quel id 
         $sql = "SELECT * FROM Prodotti WHERE id=?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$id]);
         $libro = $stmt->fetch();
-        // imposto ka quantità massima anche in base al formato del libro 
-        if ($libro['formato'] == 'digitale') {
-            $quantitaMassima = 1;
+
+        // se l id del libro non esiste restituiamo errore 
+        if (!$libro) {
+            $errore = "Il prodotto richiesto non è disponibile o è stato rimosso.";
         } else {
-            $quantitaMassima = $libro['disponibilita'];
+            // Se esiste, calcoliamo la quantità massima in base al formato del libro
+            $quantitaMassima = ($libro['formato'] == 'digitale') ? 1 : $libro['disponibilita'];
+            
+            // funzione per gestire l aggiunta al carrello del libro
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // gestiamo i permessi per l aggiunta al carrello 
+                if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
+                    $quantita = (int)$_POST['quantita'];
+                    // se la quantita esiste gli assegna il valore se non esiste assegna 0 
+                    $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
+                    $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
+
+                    // controlliamo se la quatita esiste 
+                    if ($quantitaRichiestaTotal <= $quantitaMassima) {
+                        // inizzializziamo il carrello se non esiete 
+                        if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
+                        
+                        // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
+                        $_SESSION['carrello'][$id] = [
+                            'titolo'    => $libro['titolo'],
+                            'copertina' => $libro['copertina'],
+                            'formato'   => $libro['formato'],
+                            'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
+                            'quantita'  => $quantitaRichiestaTotal,
+                            'quantitaMax' => $quantitaMassima
+                        ];
+                        $messaggio = "Prodotto aggiunto correttamente al carrello";
+                    } else {
+                        // errore se la quantita richiesta è maggiore di quella disponibile 
+                        $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
+                    }
+                } else {
+                    // rimanda alla pagina di log in se l utente non è user 
+                    header('Location: auth/login.php');
+                    exit();
+                }
+            }
         }
     } catch (PDOException $e) {
-        // in caso di errore mi salvo l errore nel file log e inizzilizo l array vuoto 
         error_log("errore alla ricerca del singolo libro: " . $e->getMessage());
-        $libro = [];
+        $errore = "Si è verificato un errore tecnico. Riprova più tardi.";
     }
-}
-
-if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // definisco $id recuperandolo dal GET
-    $id = $_GET['id'];
-
-    // verifico che l'utente sia un cliente
-    if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
-
-        // 2. cast a int per sicurezza e recupero quantità
-        $quantita = (int)$_POST['quantita'];
-
-        // calcolo la quantità già presente nel carrello per questo specifico ID
-        if (isset($_SESSION['carrello'][$id])) {
-            $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'];
-        } else {
-            $quantitaGiaInCarrello = 0;
-        }
-        $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
-
-        if ($quantitaRichiestaTotal <= $quantitaMassima) {
-            // Inizializzo il carrello se non esiste
-            if (!isset($_SESSION['carrello'])) {
-                $_SESSION['carrello'] = [];
-            }
-
-            // 4. aggiorno la quantità nel carrello
-            $_SESSION['carrello'][$id] = [
-                'titolo'    => $libro['titolo'],
-                'copertina' => $libro['copertina'],
-                'formato'   => $libro['formato'],
-                'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
-                'quantita'  => $quantitaRichiestaTotal
-            ];
-
-            $messaggio = "Prodotto aggiunto correttamente al carrello";
-        } else {
-            $errore = "Quantità richiesta non disponibile (Massimo disponibile: $quantitaMassima)";
-        }
-    } else {
-        header('Location: auth/login.php');
-        exit();
-    }
+} else {
+    // se non c'è proprio l'ID nel link
+    $errore = "Nessun prodotto selezionato.";
 }
 ?>
 
@@ -106,7 +107,7 @@ if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         <!-- controllo che l array libro esista e abbia qualcosa dentro  -->
-        <?php if (isset($libro) && count($libro) > 0): ?>
+        <?php if ($libro): ?>
             <div class="row g-5 align-items-start">
                 <!-- Left Column: Image -->
                 <div class="col-md-5">
@@ -168,16 +169,7 @@ if (isset($_GET['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <!-- se non esiste o è vuoto do il messaggio di errore      -->
         <?php else: ?>
-            <div style="display: flex; align-items: center; background-color: #fef2f2; border: 1px solid #fee2e2; color: #b91c1c; padding: 12px 16px; border-radius: 8px; font-family: sans-serif; gap: 10px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <p style="margin: 0; font-size: 14px; font-weight: 500;">
-                    Si è verificato un errore. Impossibile mostrare il libro, riprova più tardi.
-                </p>
-            </div>
+            
         <?php endif ?>
     </main>
 
