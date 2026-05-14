@@ -50,7 +50,37 @@ if (isset($_GET['id'])) {
         $ordini_dettagli = [];
     }
 }
-
+// funzionalita per modificare nome e email 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nuovo_nome = $_POST['nome'];
+    $nuova_email = $_POST['email'];
+    if (str_contains($nuova_email, "@") && str_contains($nuova_email, ".")) {
+        try {
+            $sql = "SELECT COUNT(*) AS controllo FROM Utenti WHERE email=?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$nuova_email]);
+            $email_trovate = $stmt->fetchColumn();
+            if ($email_trovate == 0) {
+                $sql = "UPDATE Utenti SET email =? ,nome=? WHERE id=?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$nuova_email, $nuovo_nome, $_SESSION['user_id']]);
+                $_SESSION['user_nome'] = $nuovo_nome;
+                $_SESSION['user_email'] = $nuova_email;
+                header('Location:profilo.php?successo');
+                exit();
+            } else {
+                header('Location:profilo.php?email_esistente');
+                exit();
+            }
+        } catch (PDOException $e) {
+            header('Location:profilo.php?errore');
+            exit();
+        }
+    } else {
+        header('Location:profilo.php?errore');
+        exit();
+    }
+}
 ?>
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
@@ -61,7 +91,23 @@ if (isset($_GET['id'])) {
 
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
         <h2 class="fw-bold text-secondary-color mb-4">Ciao, <span class="text-primary"><?php echo htmlspecialchars($_SESSION['user_nome']) ?></span>!</h2>
+        <?php if (isset($_GET['successo'])): ?>
+            <div class="alert alert-success">
+                <strong>Operazione completata!</strong> Le tue credenziali sono state aggiornate con successo.
+            </div>
+        <?php endif; ?>
 
+        <?php if (isset($_GET['email_esistente'])): ?>
+            <div class="alert alert-warning">
+                <strong>Email non disponibile:</strong> L'indirizzo inserito è già associato a un altro account. Prova con uno diverso.
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['errore'])): ?>
+            <div class="alert alert-danger">
+                <strong>Si è verificato un errore:</strong> Non è stato possibile aggiornare i dati. Riprova tra qualche minuto.
+            </div>
+        <?php endif; ?>
         <div class="row g-4">
             <!-- Info Utente -->
             <div class="col-lg-4">
