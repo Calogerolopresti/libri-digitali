@@ -1,0 +1,3 @@
+# file con le credenziali del db - non caricare su git
+config/secrets.php
+.DS_Store

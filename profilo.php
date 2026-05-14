@@ -12,6 +12,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'user') {
 
 $user_id = $_SESSION['user_id'];
 
+// genero il token csrf se non esiste ancora nella sessione
+if(!isset($_SESSION['csrf_token'])){
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Logica per l'apertura automatica della modale dettagli
 $showOrderDetail = false;
 if (isset($_GET['id']) && isset($_GET['azione']) && $_GET['azione'] == 'mostra') {
@@ -31,8 +36,9 @@ try {
 
 // quando il cliente clicca sui dettagli di un singolo ordine facciamo la query tramite join per recuperare informazioni in piu come copertina formato ecc che non si trovano nella tabella dettagli ordini 
 if (isset($_GET['id'])) {
-    $dettaglio_ordine = htmlspecialchars($_GET['id']);
+    $dettaglio_ordine = (int)$_GET['id'];
     try {
+        // aggiungo il controllo sull id utente cosi un utente non puo vedere gli ordini di un altro
         $sql = "SELECT 
                 Prodotti.titolo as titolo, 
                 Prodotti.copertina as copertina, 
@@ -41,9 +47,11 @@ if (isset($_GET['id'])) {
                 Dettagli_Ordine.quantita as quantita
                 FROM Dettagli_Ordine
                 JOIN Prodotti ON Dettagli_Ordine.id_prodotto = Prodotti.id
-                WHERE Dettagli_Ordine.id_ordine = (?);";
+                JOIN Ordini ON Dettagli_Ordine.id_ordine = Ordini.id
+                WHERE Dettagli_Ordine.id_ordine = (?)
+                AND Ordini.id_utente = (?)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$dettaglio_ordine]);
+        $stmt->execute([$dettaglio_ordine, $user_id]);
         $ordini_dettagli = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         // anche qui in caso di errore restituiamo un array vuoto in modo tale da non far vedere errori all utente 
@@ -52,31 +60,48 @@ if (isset($_GET['id'])) {
 }
 // funzionalita per modificare nome e email 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nuovo_nome = $_POST['nome'];
-    $nuova_email = $_POST['email'];
-    if (str_contains($nuova_email, "@") && str_contains($nuova_email, ".")) {
-        try {
-            $sql = "SELECT COUNT(*) AS controllo FROM Utenti WHERE email=?";
+
+    // verifico il token csrf prima di fare qualsiasi altra cosa
+    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']){
+        header('Location:profilo.php?errore');
+        exit();
+    }
+
+    $nuovo_nome = trim($_POST['nome']);
+    // uso filter_var per validare l email in modo corretto
+    $nuova_email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
+
+    if ($nuova_email === false || empty($nuovo_nome)) {
+        header('Location:profilo.php?errore');
+        exit();
+    }
+
+    try {
+        // apro una transazione per evitare che due richieste simultanee usino la stessa email
+        $pdo->beginTransaction();
+        $sql = "SELECT COUNT(*) AS controllo FROM Utenti WHERE email=? FOR UPDATE";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nuova_email]);
+        $email_trovate = $stmt->fetchColumn();
+
+        if ($email_trovate == 0) {
+            $sql = "UPDATE Utenti SET email=?, nome=? WHERE id=?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$nuova_email]);
-            $email_trovate = $stmt->fetchColumn();
-            if ($email_trovate == 0) {
-                $sql = "UPDATE Utenti SET email =? ,nome=? WHERE id=?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$nuova_email, $nuovo_nome, $_SESSION['user_id']]);
-                $_SESSION['user_nome'] = $nuovo_nome;
-                $_SESSION['user_email'] = $nuova_email;
-                header('Location:profilo.php?successo');
-                exit();
-            } else {
-                header('Location:profilo.php?email_esistente');
-                exit();
-            }
-        } catch (PDOException $e) {
-            header('Location:profilo.php?errore');
+            $stmt->execute([$nuova_email, $nuovo_nome, $_SESSION['user_id']]);
+            $pdo->commit();
+            $_SESSION['user_nome'] = $nuovo_nome;
+            $_SESSION['user_email'] = $nuova_email;
+            header('Location:profilo.php?successo');
+            exit();
+        } else {
+            $pdo->rollBack();
+            header('Location:profilo.php?email_esistente');
             exit();
         }
-    } else {
+    } catch (PDOException $e) {
+        // in caso di errore annullo tutto e mostro un messaggio generico
+        if($pdo->inTransaction()) $pdo->rollBack();
+        error_log("errore modifica profilo: " . $e->getMessage());
         header('Location:profilo.php?errore');
         exit();
     }
@@ -182,6 +207,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="modal-body p-4">
                     <form method="POST" action="">
+                        <!-- campo nascosto per la protezione csrf -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <div class="mb-3">
                             <label for="nome_edit" class="form-label text-muted small fw-medium">Nome Completo</label>
                             <input type="text" class="form-control rounded-3" id="nome_edit" name="nome" value="<?php echo htmlspecialchars($_SESSION['user_nome']) ?>" required>

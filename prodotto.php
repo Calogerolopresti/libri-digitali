@@ -10,6 +10,11 @@ $libro = null;
 $errore = "";
 $messaggio = "";
 
+// genero il token csrf se non esiste ancora nella sessione
+if(!isset($_SESSION['csrf_token'])){
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // controlliamo de nell link è stato inserito id del libro da cercare 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -31,29 +36,35 @@ if (isset($_GET['id'])) {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // gestiamo i permessi per l aggiunta al carrello 
                 if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
-                    $quantita = (int)$_POST['quantita'];
-                    // se la quantita esiste gli assegna il valore se non esiste assegna 0 
-                    $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
-                    $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
 
-                    // controlliamo se la quatita esiste 
-                    if ($quantitaRichiestaTotal <= $quantitaMassima) {
-                        // inizzializziamo il carrello se non esiete 
-                        if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
-                        
-                        // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
-                        $_SESSION['carrello'][$id] = [
-                            'titolo'    => $libro['titolo'],
-                            'copertina' => $libro['copertina'],
-                            'formato'   => $libro['formato'],
-                            'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
-                            'quantita'  => $quantitaRichiestaTotal,
-                            'quantitaMax' => $quantitaMassima
-                        ];
-                        $messaggio = "Prodotto aggiunto correttamente al carrello";
+                    // verifico il token csrf prima di aggiungere al carrello
+                    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']){
+                        $errore = "Richiesta non valida, riprova.";
                     } else {
-                        // errore se la quantita richiesta è maggiore di quella disponibile 
-                        $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
+                        $quantita = (int)$_POST['quantita'];
+                        // se la quantita esiste gli assegna il valore se non esiste assegna 0 
+                        $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
+                        $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
+
+                        // controlliamo se la quatita esiste 
+                        if ($quantitaRichiestaTotal <= $quantitaMassima) {
+                            // inizzializziamo il carrello se non esiete 
+                            if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
+                            
+                            // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
+                            $_SESSION['carrello'][$id] = [
+                                'titolo'    => $libro['titolo'],
+                                'copertina' => $libro['copertina'],
+                                'formato'   => $libro['formato'],
+                                'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
+                                'quantita'  => $quantitaRichiestaTotal,
+                                'quantitaMax' => $quantitaMassima
+                            ];
+                            $messaggio = "Prodotto aggiunto correttamente al carrello";
+                        } else {
+                            // errore se la quantita richiesta è maggiore di quella disponibile 
+                            $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
+                        }
                     }
                 } else {
                     // rimanda alla pagina di log in se l utente non è user 
@@ -134,6 +145,8 @@ if (isset($_GET['id'])) {
                     </div>
 
                     <form action="" method="POST">
+                        <!-- campo nascosto per la protezione csrf -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
                         <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white rounded-3 shadow-sm border border-light">
                             <div class="d-flex align-items-center me-2">
                                 <label for="quantita" class="fw-medium text-muted mb-0 me-3">Quantità:</label>

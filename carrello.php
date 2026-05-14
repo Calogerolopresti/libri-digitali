@@ -125,8 +125,9 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            echo "Errore critico: " . $e->getMessage();
-            header("Location:carrello.php?errore=Errore_riprovare_più_tardi");
+            // salvo l errore nel log senza mostrarlo all utente
+            error_log("errore transazione ordine: " . $e->getMessage());
+            header("Location:carrello.php?errore=" . urlencode('errore_riprovare_piu_tardi'));
             exit();
         }
     }

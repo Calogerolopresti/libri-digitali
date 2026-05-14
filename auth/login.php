@@ -9,49 +9,60 @@ if(!isset($_SESSION['tentativi'])){
     $_SESSION['tentativi']=0;
 }
 
+// genero il token csrf se non esiste ancora nella sessione
+if(!isset($_SESSION['csrf_token'])){
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // se inviano il form in pagina con method post entrano nell if 
 if($_SERVER['REQUEST_METHOD']==='POST'){
-    // prima di fare la chiamata al db controllo che i tentativi non siano stati superati 
-    if($_SESSION['tentativi']<=4){
-        $_SESSION['tentativi']++;
+
+    // verifico che il token csrf sia valido prima di fare qualsiasi cosa
+    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']){
+        $errore = "Richiesta non valida, riprova.";
+    } else {
+        // prima di fare la chiamata al db controllo che i tentativi non siano stati superati 
+        if($_SESSION['tentativi']<=4){
+            $_SESSION['tentativi']++;
             // salvo le credenziali inviate tramite post 
-        $email = $_POST['email'];
-        $password= $_POST['password'];
+            $email = $_POST['email'];
+            $password= $_POST['password'];
 
-        // faccio la query per cercare l utente con quella data email 
-        try{
-            $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
-        }catch(PDOException $e){
-            // se la query va male salviamo l errore nel file di log e mostriamo un errore all utente 
-            error_log("errore al login ".$e->getMessage());
-            $errore = "Si è verificato un problema tecnico. Riprova più tardi.";;
-        }
-        
-
-        // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database. 
-        if($user && password_verify($password,$user['password'])){
-            // se lutente esiste e la pass coincice mi salvo le informazioni dell utente nella sessione 
-            $_SESSION['user_id']=$user['id'];
-            $_SESSION['user_nome']=$user['nome'];
-            $_SESSION['user_email']=$user['email'];
-            $_SESSION['ruolo']=$user['ruolo'];
-            // reindirizzo l utente in base al suo ruolo 
-            if($user['ruolo']==='admin'){
-                header('Location:../admin/index.php');
-                exit();
-            }else{
-            header('Location:../index-logged.php');
-                exit(); 
+            // faccio la query per cercare l utente con quella data email 
+            try{
+                $stmt = $pdo->prepare('SELECT * FROM Utenti WHERE email=?');
+                $stmt->execute([$email]);
+                $user = $stmt->fetch();
+            }catch(PDOException $e){
+                // se la query va male salviamo l errore nel file di log e mostriamo un errore all utente 
+                error_log("errore al login ".$e->getMessage());
+                $errore = "Si è verificato un problema tecnico. Riprova più tardi.";
             }
 
+            // verifica se l'utente esiste e se la password fornita corrisponde all'hash nel database 
+            if(isset($user) && $user && password_verify($password,$user['password'])){
+                // rigenero l id sessione per evitare session fixation
+                session_regenerate_id(true);
+                // se lutente esiste e la pass coincice mi salvo le informazioni dell utente nella sessione 
+                $_SESSION['user_id']=$user['id'];
+                $_SESSION['user_nome']=$user['nome'];
+                $_SESSION['user_email']=$user['email'];
+                $_SESSION['ruolo']=$user['ruolo'];
+                // reindirizzo l utente in base al suo ruolo 
+                if($user['ruolo']==='admin'){
+                    header('Location:../admin/index.php');
+                    exit();
+                }else{
+                    header('Location:../index-logged.php');
+                    exit(); 
+                }
+            }else{
+                $errore='email o password non corrette, Tentativi: '.$_SESSION['tentativi'];
+            }
         }else{
-            $errore='email o password non corrette, Tentativi: '.$_SESSION['tentativi'];
+            // se i tentativi sono stati superati lo mostro a schermo 
+            $errore="Troppi tentativi, Riprova più tardi";
         }
-    }else{
-        // se i tentativi sono stati superati lo mostro a schermo 
-        $errore="Troppi tentativi, Riprova più tardi";
     }
 }
 
@@ -75,7 +86,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
                     </div>
                     
                     <form method="POST" action="">
-                        <?php if(isset($errore)) echo "<p style='color: red'>$errore</p>"?>
+                        <!-- campo nascosto per la protezione csrf -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        <?php if(isset($errore)) echo "<p style='color: red'>" . htmlspecialchars($errore) . "</p>"?>
                         <div class="mb-4">
                             <label for="email" class="form-label">Email</label>
                             <div class="input-group-custom">
