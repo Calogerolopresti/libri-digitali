@@ -86,7 +86,7 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
         foreach ($carrello as $item) {
             $totale_calcolato += $item['prezzo'] * $item['quantita'];
         }
-        
+
         // Ottieni la data e l'ora corrente
         $data_ordine = date('Y-m-d H:i:s');
 
@@ -153,13 +153,13 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
             </div>
         <?php endif; ?>
         <?php if (isset($_GET['successo'])): ?>
-            <div class="alert alert-error">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            <div class="alert alert-success">
+                <!-- Icona Check (Spunta) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
-                <span><?php echo "Ordine avvenuto con successo"; ?></span>
+                <span>Ordine completato con successo! Grazie per il tuo acquisto.</span>
             </div>
         <?php endif; ?>
         <div class="row g-4 align-items-start">
@@ -263,7 +263,67 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
                 </div>
         </div>
     <?php else: ?>
-        <p>Il carrello è vuoto, Inserisci qualche prodotto nel carrello!</p>
+        <div style="
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 80px 20px; 
+    text-align: center; 
+    background-color: #fff5f5; /* Sfondo con una punta di rosa/crema */
+    border: 2px solid #f2d7d7; 
+    border-radius: 20px; 
+    max-width: 800px; 
+    margin: 40px auto; 
+    box-shadow: 0 10px 30px rgba(139, 0, 0, 0.05);
+    font-family: 'Georgia', serif;
+">
+    <div style="max-width: 500px;">
+        <!-- Icona Libro Aperto in Rosso Borgogna -->
+        <div style="margin-bottom: 25px; color: #a31d1d;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+        </div>
+
+        <h2 style="
+            color: #5a0c0c; 
+            font-size: 2.2rem; 
+            margin-bottom: 15px; 
+            font-weight: normal;
+        ">
+            Pagine che aspettano solo te
+        </h2>
+
+        <p style="
+            color: #7a4a4a; 
+            font-size: 1.1rem; 
+            line-height: 1.8; 
+            margin-bottom: 35px;
+            font-style: italic;
+        ">
+            Il tuo carrello è ancora una pagina bianca. <br>
+            Lasciati ispirare dai nostri racconti e riempi il tuo mondo di nuove emozioni.
+        </p>
+
+        <a href="index-logged.php" style="
+            display: inline-block; 
+            padding: 15px 40px; 
+            background-color: #a31d1d; /* Rosso scuro elegante */
+            color: #ffffff; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(163, 29, 29, 0.3);
+            font-family: sans-serif;
+        ">
+            Esplora il Catalogo
+        </a>
+    </div>
+</div>
     <?php endif ?>
     </main>
 
