@@ -32,10 +32,8 @@ Il database si basa su tre tabelle principali con nomi di colonne standardizzati
 
 ## 👥 Team di Sviluppo
 
-* **PMO (Project Manager)**: Calogero Lo Presti - Coordinamento, Schema DB e Integrazione .
-* **Sviluppatore 1**: Gestione Login, Registrazione e Sessioni .
-* **Sviluppatore 2**: Homepage pubblica e Dashboard Venditore (CRUD) .
-* **Sviluppatore 3**: Logica Carrello, Checkout e Storico Ordini .
+* **PMO (Project Manager)**: Calogero Lo Presti - Coordinamento, Schema DB e Full-stak .
+* **Sviluppatore 1**: Francesca Rinallo - UX/UI Designer .
+* **Sviluppatore 2**: Antonio Marrone - Front End e Back End Developer .
+* **Sviluppatore 3**: Agostino Vaccare - Tester e Bug Fixer .
 
----
-*Progetto finale sviluppato per il test di programmazione Backend PHP.*
