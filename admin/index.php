@@ -16,6 +16,21 @@ include '../includes/select_prodotti.php';
 
 <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
 
+<style>
+    /*
+     * FIX MODAL: .fade-in sul body usa transform:translateY() che crea
+     * un nuovo stacking context e rompe position:fixed delle modal Bootstrap.
+     * Sovrascriviamo l'animazione sul body con una solo-opacity.
+     */
+    body.fade-in {
+        animation: fadeInBodyOnly 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes fadeInBodyOnly {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_admin.php'; ?>
@@ -66,30 +81,30 @@ include '../includes/select_prodotti.php';
                                     <td>
                                         <?php if ($libro['formato'] == 'fisico'): ?>
                                             <span class="badge" style="
-            background-color: #a31d1d; 
-            color: #ffffff; 
-            border-radius: 50px; 
-            padding: 6px 14px; 
-            font-size: 0.75rem; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            border: 1px solid #7a0c0c;
-        ">
+                                                background-color: #a31d1d; 
+                                                color: #ffffff; 
+                                                border-radius: 50px; 
+                                                padding: 6px 14px; 
+                                                font-size: 0.75rem; 
+                                                display: inline-flex; 
+                                                align-items: center; 
+                                                gap: 6px; 
+                                                border: 1px solid #7a0c0c;
+                                            ">
                                                 <i class="bi bi-book-fill"></i> CARTACEO
                                             </span>
                                         <?php else: ?>
                                             <span class="badge" style="
-            background-color: #fdf2f2; 
-            color: #a31d1d; 
-            border-radius: 50px; 
-            padding: 6px 14px; 
-            font-size: 0.75rem; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            border: 1px solid #f2d7d7;
-        ">
+                                                background-color: #fdf2f2; 
+                                                color: #a31d1d; 
+                                                border-radius: 50px; 
+                                                padding: 6px 14px; 
+                                                font-size: 0.75rem; 
+                                                display: inline-flex; 
+                                                align-items: center; 
+                                                gap: 6px; 
+                                                border: 1px solid #f2d7d7;
+                                            ">
                                                 <i class="bi bi-phone-vibrate"></i> E-BOOK
                                             </span>
                                         <?php endif; ?>
@@ -142,7 +157,7 @@ include '../includes/select_prodotti.php';
     <!-- Modal Aggiungi Prodotto -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content rounded-4 border-0 shadow-lg">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
                     <h4 class="modal-title fw-bold text-secondary-color" id="addProductModalLabel">Nuovo Prodotto</h4>
@@ -219,7 +234,7 @@ include '../includes/select_prodotti.php';
     <!-- Modal Modifica Prodotto -->
     <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content rounded-4 border-0 shadow-lg">
                 <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
                     <h4 class="modal-title fw-bold text-secondary-color" id="editProductModalLabel">Modifica Prodotto
