@@ -25,9 +25,15 @@ include '../includes/select_prodotti.php';
     body.fade-in {
         animation: fadeInBodyOnly 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
+
     @keyframes fadeInBodyOnly {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
     }
 </style>
 
@@ -80,31 +86,13 @@ include '../includes/select_prodotti.php';
                                     <!-- mostro la tipoligia in base al formato  -->
                                     <td>
                                         <?php if ($libro['formato'] == 'fisico'): ?>
-                                            <span class="badge" style="
-                                                background-color: #a31d1d; 
-                                                color: #ffffff; 
-                                                border-radius: 50px; 
-                                                padding: 6px 14px; 
-                                                font-size: 0.75rem; 
-                                                display: inline-flex; 
-                                                align-items: center; 
-                                                gap: 6px; 
-                                                border: 1px solid #7a0c0c;
-                                            ">
+                                            <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
+                                                style="background-color: #a31d1d; color: white; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #7a0c0c;">
                                                 <i class="bi bi-book-fill"></i> CARTACEO
                                             </span>
                                         <?php else: ?>
-                                            <span class="badge" style="
-                                                background-color: #fdf2f2; 
-                                                color: #a31d1d; 
-                                                border-radius: 50px; 
-                                                padding: 6px 14px; 
-                                                font-size: 0.75rem; 
-                                                display: inline-flex; 
-                                                align-items: center; 
-                                                gap: 6px; 
-                                                border: 1px solid #f2d7d7;
-                                            ">
+                                            <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
+                                                style="background-color: #fdf2f2; color: #a31d1d; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #f2d7d7;">
                                                 <i class="bi bi-phone-vibrate"></i> E-BOOK
                                             </span>
                                         <?php endif; ?>
@@ -120,14 +108,31 @@ include '../includes/select_prodotti.php';
                                     <?php endif ?>
 
                                     <td class="text-center pe-4">
+                                        <!-- Pulsante Modifica: rimosso ID fisso, aggiunto echo tramite  -->
                                         <button
-                                            class="btn btn-sm btn-outline-secondary border-0 rounded-circle me-1 d-inline-flex align-items-center justify-content-center p-0"
-                                            style="width: 35px; height: 35px;" title="Modifica" data-bs-toggle="modal"
-                                            data-bs-target="#editProductModal"><i class="fa-solid fa-pen"></i></button>
-                                        <button
+                                            type="button"
+                                            class="btn-edit btn btn-sm btn-outline-secondary border-0 rounded-circle"
+                                            data-id="<?= $libro['id'] ?>"
+                                            data-titolo="<?= htmlspecialchars($libro['titolo']) ?>"
+                                            data-prezzo="<?= htmlspecialchars($libro['prezzo']) ?>"
+                                            data-formato="<?= htmlspecialchars($libro['formato']) ?>"
+                                            data-disponibilita="<?= htmlspecialchars($libro['disponibilita']) ?>"
+                                            data-copertina="<?= htmlspecialchars($libro['copertina']) ?>"
+                                            data-descrizione="<?= htmlspecialchars($libro['descrizione']) ?>"
+                                            style="width: 35px; height: 35px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editProductModal">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+
+                                        <!-- Pulsante Elimina: corretto echo e uniformata variabile -->
+                                        <a href="elimina.php?id=<?= htmlspecialchars($libro['id']) ?>"
                                             class="btn btn-sm btn-outline-danger border-0 rounded-circle d-inline-flex align-items-center justify-content-center p-0"
-                                            style="width: 35px; height: 35px;" title="Elimina"><i
-                                                class="fa-solid fa-trash-can"></i></button>
+                                            style="width: 35px; height: 35px;"
+                                            title="Elimina"
+                                            onclick="return confirm('Vuoi davvero eliminare questo libro?')">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach ?>
@@ -198,7 +203,7 @@ include '../includes/select_prodotti.php';
                                 <label for="quantita_add" class="form-label fw-medium text-muted small">Qtà
                                     (Stock)</label>
                                 <input type="number" class="form-control" id="quantita_add" name="quantita"
-                                    placeholder="es. 10" min="0">
+                                    placeholder="es. 10" min="0" required>
                             </div>
                             <!-- Copertina -->
                             <div class="col-md-5">
@@ -207,7 +212,7 @@ include '../includes/select_prodotti.php';
                                 <div class="input-group-custom m-0">
                                     <i class="fa-solid fa-link input-icon"></i>
                                     <input type="url" class="form-control" id="copertina_add" name="copertina"
-                                        placeholder="https://esempio.com/img.jpg">
+                                        placeholder="https://esempio.com/img.jpg" required>
                                 </div>
                             </div>
                             <!-- Descrizione -->
@@ -272,7 +277,7 @@ include '../includes/select_prodotti.php';
                                 <select class="form-select form-control" id="formato_edit" name="formato" required>
                                     <option value="" disabled>Seleziona formato...</option>
                                     <option value="fisico" selected>Libro Cartaceo (Fisico)</option>
-                                    <option value="ebook">Edizione Digitale (eBook)</option>
+                                    <option value="digitale">Edizione Digitale (eBook)</option>
                                 </select>
                             </div>
                             <!-- Quantità -->
@@ -280,7 +285,7 @@ include '../includes/select_prodotti.php';
                                 <label for="quantita_edit" class="form-label fw-medium text-muted small">Qtà
                                     (Stock)</label>
                                 <input type="number" class="form-control" id="quantita_edit" name="quantita" value="15"
-                                    min="0">
+                                    min="0" required>
                             </div>
                             <!-- Copertina -->
                             <div class="col-md-5">
@@ -290,7 +295,7 @@ include '../includes/select_prodotti.php';
                                     <i class="fa-solid fa-link input-icon"></i>
                                     <input type="url" class="form-control" id="copertina_edit" name="copertina"
                                         placeholder="https://esempio.com/img.jpg"
-                                        value="https://images.unsplash.com/photo-1481627834876-b7833e8f5570">
+                                        value="https://images.unsplash.com/photo-1481627834876-b7833e8f5570" required>
                                 </div>
                             </div>
                             <!-- Descrizione -->
@@ -302,6 +307,7 @@ include '../includes/select_prodotti.php';
                                     required>Un celebre romanzo di Umberto Eco ambientato nel Medioevo...</textarea>
                             </div>
                         </div>
+                        
                         <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">
                             <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
                                 data-bs-dismiss="modal">Annulla</button>
@@ -316,33 +322,98 @@ include '../includes/select_prodotti.php';
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            function setupQuantityToggle(formatId, quantityId) {
-                const formatSelect = document.getElementById(formatId);
-                const quantityInput = document.getElementById(quantityId);
+        document.addEventListener('DOMContentLoaded', function() {
 
-                if (formatSelect && quantityInput) {
-                    const toggle = () => {
-                        if (formatSelect.value === 'ebook') {
-                            quantityInput.value = '';
-                            quantityInput.disabled = true;
-                            quantityInput.placeholder = '∞';
-                        } else {
-                            quantityInput.disabled = false;
-                            quantityInput.placeholder = 'es. 10';
-                        }
-                    };
+            /**
+             * LOGICA MODAL AGGIUNGI
+             * Gestisce l'interazione tra formato e quantità nel form di inserimento
+             */
+            const formatoAdd = document.getElementById('formato_add');
+            const quantitaAdd = document.getElementById('quantita_add');
 
-                    // Imposta stato iniziale
-                    toggle();
-
-                    // Aggiorna stato al cambio
-                    formatSelect.addEventListener('change', toggle);
-                }
+            if (formatoAdd && quantitaAdd) {
+                formatoAdd.addEventListener('change', function() {
+                    if (this.value === 'digitale' || this.value === 'ebook') {
+                        quantitaAdd.value = 0;
+                        quantitaAdd.placeholder = '∞';
+                        quantitaAdd.readOnly = true; // Impedisce l'inserimento
+                        quantitaAdd.style.backgroundColor = '#e9ecef'; // Feedback visivo (colore Bootstrap disabled)
+                    } else {
+                        quantitaAdd.value = '';
+                        quantitaAdd.placeholder = 'es. 10';
+                        quantitaAdd.readOnly = false;
+                        quantitaAdd.style.backgroundColor = '';
+                    }
+                });
             }
 
-            setupQuantityToggle('formato_add', 'quantita_add');
-            setupQuantityToggle('formato_edit', 'quantita_edit');
+            /**
+             * LOGICA MODAL MODIFICA
+             * Popola la modale al click e gestisce i cambi di formato in tempo reale
+             */
+            const editButtons = document.querySelectorAll('.btn-edit');
+            const formatoEdit = document.getElementById('formato_edit');
+            const quantitaEdit = document.getElementById('quantita_edit');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Estrazione dati dai data-attributes del bottone cliccato
+                    const id = this.dataset.id;
+                    const titolo = this.dataset.titolo;
+                    const prezzo = this.dataset.prezzo;
+                    const copertina = this.dataset.copertina;
+                    const formatoVal = this.dataset.formato; // valore dal DB
+                    const descrizione = this.dataset.descrizione;
+                    const disponibilita = this.dataset.disponibilita;
+
+                    // Riempimento campi testuali e hidden
+                    document.getElementById('id_prodotto_edit').value = id;
+                    document.getElementById('titolo_edit').value = titolo;
+                    document.getElementById('prezzo_edit').value = prezzo;
+                    document.getElementById('copertina_edit').value = copertina;
+                    document.getElementById('descrizione_edit').value = descrizione;
+
+                    // Logica specifica per Formato e Quantità all'apertura
+                    // Gestiamo il "ponte" tra i possibili valori 'digitale'/'ebook'
+                    if (formatoVal === 'digitale' || formatoVal === 'ebook') {
+                        formatoEdit.value = 'digitale'; // Seleziona l'option corretta nella tua select
+                        quantitaEdit.value = 0;
+                        quantitaEdit.placeholder = '∞';
+                        quantitaEdit.readOnly = true;
+                        quantitaEdit.style.backgroundColor = '#e9ecef';
+                    } else {
+                        formatoEdit.value = 'fisico';
+                        quantitaEdit.value = disponibilita;
+                        quantitaEdit.placeholder = 'es. 10';
+                        quantitaEdit.readOnly = false;
+                        quantitaEdit.style.backgroundColor = '';
+                    }
+
+                    // Memorizziamo la disponibilità originale nel caso l'utente cambi formato e poi torni indietro
+                    quantitaEdit.dataset.originalValue = disponibilita;
+                });
+            });
+
+            /**
+             * GESTIONE CAMBIO FORMATO DENTRO LA MODALE MODIFICA
+             * Se l'utente cambia il select mentre modifica, la quantità deve reagire
+             */
+            if (formatoEdit && quantitaEdit) {
+                formatoEdit.addEventListener('change', function() {
+                    if (this.value === 'ebook' || this.value === 'digitale') {
+                        quantitaEdit.value = 0;
+                        quantitaEdit.placeholder = '∞';
+                        quantitaEdit.readOnly = true;
+                        quantitaEdit.style.backgroundColor = '#e9ecef';
+                    } else {
+                        // Ripristina il valore originale del libro se disponibile, altrimenti lascia vuoto
+                        quantitaEdit.value = quantitaEdit.dataset.originalValue || '';
+                        quantitaEdit.placeholder = 'es. 10';
+                        quantitaEdit.readOnly = false;
+                        quantitaEdit.style.backgroundColor = '';
+                    }
+                });
+            }
         });
     </script>
 

@@ -260,7 +260,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- STRUTTURA STATICA DA POPOLARE -->
                                     <?php foreach ($ordini_dettagli as $dettaglio): ?>
                                         <tr>
                                             <td class="ps-3 py-3">
