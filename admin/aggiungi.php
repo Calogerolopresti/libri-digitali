@@ -13,8 +13,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // controllo che ci sia e sia corretto il csfr toker 
-    if (!isset($_POST['csfr_token']) || $_POST['csfr_token'] !== $_SESSION['csfr_token']) {
+    // controllo che ci sia e sia corretto il csrf token 
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         header('Location:index.php?errore_insert');
         exit();
     }
@@ -27,9 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }else{
             $quantita=$_POST['quantita'];
         }
+        
+        // controllo che il prezzo non sia minore di zero
+        $prezzo = (float)$_POST['prezzo'];
+        if ($prezzo < 0) $prezzo = 0;
+
         $sql="INSERT INTO Prodotti (titolo,descrizione,prezzo, formato, disponibilita,copertina) VALUES (?,?,?,?,?,?)";
         $stmt=$pdo->prepare($sql);
-        $stmt->execute([$_POST['titolo'],$_POST['descrizione'],$_POST['prezzo'],$_POST['formato'],$quantita,$copertina]);
+        $stmt->execute([$_POST['titolo'],$_POST['descrizione'],$prezzo,$_POST['formato'],$quantita,$copertina]);
         header('Location:index.php');
         exit();
     }catch(PDOException $e){

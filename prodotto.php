@@ -42,28 +42,34 @@ if (isset($_GET['id'])) {
                         $errore = "Richiesta non valida, riprova.";
                     } else {
                         $quantita = (int)$_POST['quantita'];
-                        // se la quantita esiste gli assegna il valore se non esiste assegna 0 
-                        $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
-                        $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
+                        // controllo che la quantita richiesta sia maggiore di zero per evitare exploit
+                        if ($quantita > 0) {
+                            // se la quantita esiste gli assegna il valore se non esiste assegna 0 
+                            $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
+                            $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
 
-                        // controlliamo se la quatita esiste 
-                        if ($quantitaRichiestaTotal <= $quantitaMassima) {
-                            // inizzializziamo il carrello se non esiete 
-                            if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
-                            
-                            // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
-                            $_SESSION['carrello'][$id] = [
-                                'titolo'    => $libro['titolo'],
-                                'copertina' => $libro['copertina'],
-                                'formato'   => $libro['formato'],
-                                'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
-                                'quantita'  => $quantitaRichiestaTotal,
-                                'quantitaMax' => $quantitaMassima
-                            ];
-                            $messaggio = "Prodotto aggiunto correttamente al carrello";
+                            // controlliamo se la quatita esiste 
+                            if ($quantitaRichiestaTotal <= $quantitaMassima) {
+                                // inizzializziamo il carrello se non esiete 
+                                if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
+                                
+                                // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
+                                $_SESSION['carrello'][$id] = [
+                                    'titolo'    => $libro['titolo'],
+                                    'copertina' => $libro['copertina'],
+                                    'formato'   => $libro['formato'],
+                                    'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
+                                    'quantita'  => $quantitaRichiestaTotal,
+                                    'quantitaMax' => $quantitaMassima
+                                ];
+                                $messaggio = "Prodotto aggiunto correttamente al carrello";
+                            } else {
+                                // errore se la quantita richiesta è maggiore di quella disponibile 
+                                $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
+                            }
                         } else {
-                            // errore se la quantita richiesta è maggiore di quella disponibile 
-                            $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
+                            // errore se la quantita inserita è minore o uguale a zero
+                            $errore = "Inserisci una quantità valida maggiore di zero.";
                         }
                     }
                 } else {

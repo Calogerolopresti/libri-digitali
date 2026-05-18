@@ -14,121 +14,138 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'user') {
     exit();
 }
 
+// genero il token csrf se non esiste ancora nella sessione
+if(!isset($_SESSION['csrf_token'])){
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $somma = 0.00;
 
-// funzione per aumentare la quantità di una unita 
-if (isset($_GET['id'], $_GET['azione']) && $_GET['azione'] === 'aggiungi') {
-    $id = htmlspecialchars($_GET['id']);
-
-    // verifichiamo che il prodotto esista effettivamente nel carrello
-    if (isset($_SESSION['carrello'][$id])) {
-
-        $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
-        $quantitaMax = $_SESSION['carrello'][$id]['quantitaMax'];
-
-        // controllo disponibilità
-        if (($quantitaAttuale + 1) <= $quantitaMax) {
-            $_SESSION['carrello'][$id]['quantita']++;
-        } else {
-            // passo l errore tramite get
-            header('Location: carrello.php?errore=' . urlencode('limite_raggiunto'));
-            exit();
-        }
+// elaboro le azioni solo se arrivano in post e se il token csrf è valido
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('Location: carrello.php?errore=' . urlencode('Richiesta non valida.'));
+        exit();
     }
 
-    header('Location: carrello.php');
-    exit();
-}
+    // funzione per aumentare la quantità di una unita 
+    if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'aggiungi') {
+        $id = htmlspecialchars($_POST['id']);
 
-// funzione per diminuire la quantita di un unità 
-if (isset($_GET['id'], $_GET['azione']) && $_GET['azione'] === 'rimuovi') {
-    $id = htmlspecialchars($_GET['id']);
+        // verifichiamo che il prodotto esista effettivamente nel carrello
+        if (isset($_SESSION['carrello'][$id])) {
 
-    // verifichiamo che il prodotto esista effettivamente nel carrello
-    if (isset($_SESSION['carrello'][$id])) {
+            $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
+            $quantitaMax = $_SESSION['carrello'][$id]['quantitaMax'];
 
-        $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
-
-        // controllo disponibilità
-        if (($quantitaAttuale - 1) > 0) {
-            $_SESSION['carrello'][$id]['quantita']--;
-        } else {
-            // passo l errore tramite get
-            header('Location: carrello.php?errore=' . urlencode('minimo_raggiunto'));
-            exit();
-        }
-    }
-
-    header('Location: carrello.php');
-    exit();
-}
-
-// funzione per eliminare l articolo da carrello 
-if (isset($_GET['id'], $_GET['azione']) && $_GET['azione'] === 'elimina') {
-    $id = htmlspecialchars($_GET['id']);
-
-    // verifichiamo che il prodotto esista effettivamente nel carrello
-    if (isset($_SESSION['carrello'][$id])) {
-        unset($_SESSION['carrello'][$id]);
-    }
-
-    header('Location: carrello.php');
-    exit();
-}
-
-// funzione per l acquisto 
-if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
-    if (!empty($_SESSION['carrello'])) {
-        $id_utente = $_SESSION['user_id'];
-        $carrello = $_SESSION['carrello'];
-        // calcolo il totale ordine 
-        $totale_calcolato = 0;
-        foreach ($carrello as $item) {
-            $totale_calcolato += $item['prezzo'] * $item['quantita'];
+            // controllo disponibilità
+            if (($quantitaAttuale + 1) <= $quantitaMax) {
+                $_SESSION['carrello'][$id]['quantita']++;
+            } else {
+                // passo l errore tramite get
+                header('Location: carrello.php?errore=' . urlencode('limite_raggiunto'));
+                exit();
+            }
         }
 
-        // Ottieni la data e l'ora corrente
-        $data_ordine = date('Y-m-d H:i:s');
+        header('Location: carrello.php');
+        exit();
+    }
 
-        try {
-            // iniziamo la transazione con pdo 
-            $pdo->beginTransaction();
-            $sql_ordine = "INSERT INTO Ordini (id_utente, totale_ordine, data_ordine) VALUES (?, ?, ?)";
-            $stmt = $pdo->prepare($sql_ordine);
-            $stmt->execute([$id_utente, $totale_calcolato, $data_ordine]);
+    // funzione per diminuire la quantita di un unità 
+    if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'rimuovi') {
+        $id = htmlspecialchars($_POST['id']);
 
-            // recuperiamo l ultimo id crearo nell insert 
-            $id_ordine_creato = $pdo->lastInsertId();
+        // verifichiamo che il prodotto esista effettivamente nel carrello
+        if (isset($_SESSION['carrello'][$id])) {
 
-            $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario) VALUES (?,?,?,?)";
-            $stmt_dettagli = $pdo->prepare($sql_dettagli);
-            $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta WHERE id = :id_prod AND formato = 'fisico'";
-            $stmt_quantita = $pdo->prepare($sql_quantita);
+            $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
 
-            foreach ($carrello as $id_prodotto => $dati) {
-                $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo']]);
-                if ($dati['formato'] === 'fisico') {
-                    $stmt_quantita->execute([
-                        ':qta' => $dati['quantita'],
-                        ':id_prod' => $id_prodotto
-                    ]);
+            // controllo disponibilità
+            if (($quantitaAttuale - 1) > 0) {
+                $_SESSION['carrello'][$id]['quantita']--;
+            } else {
+                // passo l errore tramite get
+                header('Location: carrello.php?errore=' . urlencode('minimo_raggiunto'));
+                exit();
+            }
+        }
+
+        header('Location: carrello.php');
+        exit();
+    }
+
+    // funzione per eliminare l articolo da carrello 
+    if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'elimina') {
+        $id = htmlspecialchars($_POST['id']);
+
+        // verifichiamo che il prodotto esista effettivamente nel carrello
+        if (isset($_SESSION['carrello'][$id])) {
+            unset($_SESSION['carrello'][$id]);
+        }
+
+        header('Location: carrello.php');
+        exit();
+    }
+
+    // funzione per l acquisto 
+    if (isset($_POST['azione']) && $_POST['azione'] == 'acquista') {
+        if (!empty($_SESSION['carrello'])) {
+            $id_utente = $_SESSION['user_id'];
+            $carrello = $_SESSION['carrello'];
+            // calcolo il totale ordine 
+            $totale_calcolato = 0;
+            foreach ($carrello as $item) {
+                $totale_calcolato += $item['prezzo'] * $item['quantita'];
+            }
+
+            // Ottieni la data e l'ora corrente
+            $data_ordine = date('Y-m-d H:i:s');
+
+            try {
+                // iniziamo la transazione con pdo 
+                $pdo->beginTransaction();
+                $sql_ordine = "INSERT INTO Ordini (id_utente, totale_ordine, data_ordine) VALUES (?, ?, ?)";
+                $stmt = $pdo->prepare($sql_ordine);
+                $stmt->execute([$id_utente, $totale_calcolato, $data_ordine]);
+
+                // recuperiamo l ultimo id crearo nell insert 
+                $id_ordine_creato = $pdo->lastInsertId();
+
+                $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario) VALUES (?,?,?,?)";
+                $stmt_dettagli = $pdo->prepare($sql_dettagli);
+                // aggiorno la quantita solo se c'è ancora disponibilita per evitare che due utenti comprino l ultimo pezzo contemporaneamente
+                $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta WHERE id = :id_prod AND formato = 'fisico' AND disponibilita >= :qta";
+                $stmt_quantita = $pdo->prepare($sql_quantita);
+
+                foreach ($carrello as $id_prodotto => $dati) {
+                    $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo']]);
+                    if ($dati['formato'] === 'fisico') {
+                        $stmt_quantita->execute([
+                            ':qta' => $dati['quantita'],
+                            ':id_prod' => $id_prodotto
+                        ]);
+                        // se l update fallisce vuol dire che il prodotto è finito e annullo l ordine
+                        if ($stmt_quantita->rowCount() == 0) {
+                            throw new PDOException("Scorte esaurite per il prodotto: " . $dati['titolo']);
+                        }
+                    }
                 }
-            }
 
-            $pdo->commit();
-            unset($_SESSION['carrello']);
-            echo "Ordine #$id_ordine_creato salvato con successo!";
-            header("Location:carrello.php?successo=1");
-            exit();
-        } catch (PDOException $e) {
-            // Se qualcosa fallisce, PDO annulla tutto
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
+                $pdo->commit();
+                unset($_SESSION['carrello']);
+                header("Location:carrello.php?successo=1");
+                exit();
+            } catch (PDOException $e) {
+                // Se qualcosa fallisce, PDO annulla tutto
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                // salvo l errore nel log senza mostrarlo all utente
+                error_log("errore transazione ordine: " . $e->getMessage());
+                header("Location:carrello.php?errore=" . urlencode('errore_riprovare_piu_tardi'));
+                exit();
             }
-            // salvo l errore nel log senza mostrarlo all utente
-            error_log("errore transazione ordine: " . $e->getMessage());
-            header("Location:carrello.php?errore=" . urlencode('errore_riprovare_piu_tardi'));
-            exit();
         }
     }
 }
@@ -206,21 +223,36 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
                                                 <td class="text-muted fw-medium">€ <?php echo htmlspecialchars($dati['prezzo']); ?></td>
                                                 <td>
                                                     <div class="qty-selector d-inline-flex align-items-center" style="border:none!important;background-color:transparent!important;">
-                                                        <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?id=<?php echo htmlspecialchars($id) ?>&azione=rimuovi" style="text-decoration: none;"><button class="btn qty-btn shadow-sm" type="button"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button></a>
+                                                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
+                                                            <input type="hidden" name="azione" value="rimuovi">
+                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
+                                                        </form>
                                                         <input type="number"
                                                             class="form-control text-center qty-input hide-spinners px-1"
                                                             name="quantita"
                                                             value="<?php echo htmlspecialchars($dati['quantita']) ?>"
                                                             min="1"
-                                                            max="<?php echo htmlspecialchars(($dati['copertina'] == 'digitale') ? 1 : $dati['quantitaMax']); ?>"
+                                                            max="<?php echo htmlspecialchars(($dati['formato'] == 'digitale') ? 1 : $dati['quantitaMax']); ?>"
                                                             readonly>
-                                                        <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?id=<?php echo htmlspecialchars($id) ?>&azione=aggiungi" style="text-decoration: none;"><button class="btn qty-btn shadow-sm" type="button"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button></a>
+                                                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
+                                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
+                                                            <input type="hidden" name="azione" value="aggiungi">
+                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
+                                                        </form>
                                                     </div>
                                                 </td>
                                                 <?php (float)$totale = $dati['quantita'] * (float)$dati['prezzo']; ?>
                                                 <td class="text-end fw-bold text-primary">€ <?php echo htmlspecialchars((float)$totale) ?></td>
                                                 <td class="text-center pe-4">
-                                                    <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?id=<?php echo htmlspecialchars($id) ?>&azione=elimina"><button class="btn btn-outline-danger btn-round-perfect shadow-sm border-0" title="Rimuovi"><i class="fa-solid fa-trash-can"></i></button></a>
+                                                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
+                                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
+                                                        <input type="hidden" name="azione" value="elimina">
+                                                        <button class="btn btn-outline-danger btn-round-perfect shadow-sm border-0" title="Rimuovi" type="submit"><i class="fa-solid fa-trash-can"></i></button>
+                                                    </form>
                                                 </td>
                                             </tr>
                                         <?php endforeach ?>
@@ -344,11 +376,14 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
                         <h6 class="fw-bold mb-3">Questo è un sito dimostrativo</h6>
                         <p class="text-muted mb-4">Non verranno richiesti o elaborati dati di pagamento reali. Clicca su "Simula Pagamento" per completare l'ordine in modo fittizio.</p>
                         <div class="d-grid gap-2">
-                            <a href="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>?azione=acquista">
-                                <button type="button" class="btn btn-primary py-2 rounded-pill fw-bold">
+                            <!-- form nascosto per processare il pagamento simulato -->
+                            <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0" id="checkoutForm">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="azione" value="acquista">
+                                <button type="button" class="btn btn-primary py-2 rounded-pill fw-bold w-100" onclick="simulatePayment(this)">
                                     Simula Pagamento € <?php echo htmlspecialchars((float)$somma) ?>
                                 </button>
-                            </a>
+                            </form>
 
                             <button type="button" class="btn btn-light py-2 rounded-pill fw-medium" data-bs-dismiss="modal">Annulla</button>
                         </div>
@@ -376,12 +411,10 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
             setTimeout(() => {
                 document.getElementById('paymentSuccess').classList.remove('d-none');
                 btn.classList.add('d-none');
-                btn.nextElementSibling.classList.add('d-none'); // Nasconde il tasto Annulla
-
-                // Simula redirect dopo 2 secondi
+                // invio il form per far elaborare l acquisto a php
                 setTimeout(() => {
-                    window.location.href = 'index.php?payment=success';
-                }, 2000);
+                    document.getElementById('checkoutForm').submit();
+                }, 1500);
             }, 1500);
         }
     </script>

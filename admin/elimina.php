@@ -11,18 +11,25 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
     exit();
 }
 
-if(isset($_GET['id'])){
-    $id=(int)$_GET['id'];
-    try{
-        $sql="DELETE FROM Prodotti WHERE id=?";
-        $stmt=$pdo->prepare($sql);
-        $stmt->execute([$id]);
-        header("Location: index.php");
-        exit();
-    }catch(PDOException $e){
-        error_log("errore durante l'eliminazione del prodotto: ").$e->getMessage();
-        header("Location: index.php?errore_delete");
+// elimino solo se la chiamata è post e se il token csrf è valido
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('Location:index.php?errore_delete');
         exit();
     }
-    
+
+    if (isset($_POST['id'])) {
+        $id = (int)$_POST['id'];
+        try {
+            $sql = "DELETE FROM Prodotti WHERE id=?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$id]);
+            header("Location: index.php");
+            exit();
+        } catch (PDOException $e) {
+            error_log("errore durante l'eliminazione del prodotto: ") . $e->getMessage();
+            header("Location: index.php?errore_delete");
+            exit();
+        }
+    }
 }    

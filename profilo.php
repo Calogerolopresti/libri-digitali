@@ -79,9 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // apro una transazione per evitare che due richieste simultanee usino la stessa email
         $pdo->beginTransaction();
-        $sql = "SELECT COUNT(*) AS controllo FROM Utenti WHERE email=? FOR UPDATE";
+        // controllo che l email non sia associata ad altri utenti
+        $sql = "SELECT COUNT(*) AS controllo FROM Utenti WHERE email=? AND id!=? FOR UPDATE";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nuova_email]);
+        $stmt->execute([$nuova_email, $_SESSION['user_id']]);
         $email_trovate = $stmt->fetchColumn();
 
         if ($email_trovate == 0) {

@@ -6,8 +6,8 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // creo il csft token se non esiste gia in sessione 
-if (!isset($_SESSION['csfr_token'])) {
-    $_SESSION['csfr_token'] = bin2hex(random_bytes(32));
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // controllo se l utente è con ruolo user o se ha mai fatto accesso e se non lo è lo butto fuori 
@@ -165,14 +165,14 @@ include __DIR__ . '/../includes/select_prodotti.php';
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
 
-                                            <!-- Pulsante Elimina: corretto echo e uniformata variabile -->
-                                            <a href="elimina.php?id=<?= htmlspecialchars($libro['id']) ?>"
-                                                class="btn btn-sm btn-outline-danger border-0 rounded-circle d-inline-flex align-items-center justify-content-center p-0"
-                                                style="width: 35px; height: 35px;"
-                                                title="Elimina"
-                                                onclick="return confirm('Vuoi davvero eliminare questo libro?')">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </a>
+                                            <!-- pulsante elimina passato come form per evitare csrf -->
+                                            <form method="POST" action="elimina.php" class="d-inline m-0 p-0" onsubmit="return confirm('Vuoi davvero eliminare questo libro?')">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 35px; height: 35px;" title="Elimina">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
@@ -213,7 +213,7 @@ include __DIR__ . '/../includes/select_prodotti.php';
                 <div class="modal-body p-4">
                     <form method="POST" action="aggiungi.php" enctype="multipart/form-data">
                         <div class="row g-4">
-                            <input type="hidden" name="csfr_token" value="<?= htmlspecialchars($_SESSION['csfr_token']) ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                             <!-- Titolo -->
                             <div class="col-md-8">
                                 <label for="titolo_add" class="form-label fw-medium text-muted small">Titolo Libro
@@ -294,7 +294,7 @@ include __DIR__ . '/../includes/select_prodotti.php';
                         <!-- input hidden per l'ID del prodotto da modificare -->
                         <input type="hidden" name="id_prodotto" id="id_prodotto_edit" value="1">
 
-                        <input type="hidden" name="csfr_token" value="<?= htmlspecialchars($_SESSION['csfr_token']) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
                         <div class="row g-4">
                             <!-- Titolo -->

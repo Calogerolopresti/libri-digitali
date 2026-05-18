@@ -12,8 +12,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
 }
 // aggiungere controllo token csrf 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // controllo che ci sia e sia corretto il csfr toker 
-    if (!isset($_POST['csfr_token']) || $_POST['csfr_token'] !== $_SESSION['csfr_token']) {
+    // controllo che ci sia e sia corretto il csrf token 
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         header('Location:index.php?errore_update');
         exit();
     }
@@ -25,9 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }else{
             $quantita=$_POST['quantita'];
         }
+        
+        // controllo che il prezzo non sia minore di zero
+        $prezzo = (float)$_POST['prezzo'];
+        if ($prezzo < 0) $prezzo = 0;
+
         $sql = "UPDATE Prodotti SET titolo=?,descrizione=?,prezzo=?,formato=?,disponibilita=?,copertina=? WHERE id=?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$_POST['titolo'], $_POST['descrizione'], (float)$_POST['prezzo'], $_POST['formato'], (int)$quantita, $copertina, (int)$_POST['id_prodotto']]);
+        $stmt->execute([$_POST['titolo'], $_POST['descrizione'], $prezzo, $_POST['formato'], (int)$quantita, $copertina, (int)$_POST['id_prodotto']]);
         header('Location:index.php');
         exit();
     } catch (PDOException $e) {
