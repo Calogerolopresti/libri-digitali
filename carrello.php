@@ -115,14 +115,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario) VALUES (?,?,?,?)";
                 $stmt_dettagli = $pdo->prepare($sql_dettagli);
                 // aggiorno la quantita solo se c'è ancora disponibilita per evitare che due utenti comprino l ultimo pezzo contemporaneamente
-                $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta WHERE id = :id_prod AND formato = 'fisico' AND disponibilita >= :qta";
+                // NOTA: usiamo :qta1 e :qta2 perché PDO non supporta lo stesso parametro nominato due volte nella stessa query
+                $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta1 WHERE id = :id_prod AND formato = 'fisico' AND disponibilita >= :qta2";
                 $stmt_quantita = $pdo->prepare($sql_quantita);
 
                 foreach ($carrello as $id_prodotto => $dati) {
                     $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo']]);
                     if ($dati['formato'] === 'fisico') {
                         $stmt_quantita->execute([
-                            ':qta' => $dati['quantita'],
+                            ':qta1'    => $dati['quantita'],
+                            ':qta2'    => $dati['quantita'],
                             ':id_prod' => $id_prodotto
                         ]);
                         // se l update fallisce vuol dire che il prodotto è finito e annullo l ordine

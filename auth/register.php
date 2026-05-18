@@ -6,9 +6,20 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// genero il token csrf se non esiste ancora nella sessione
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // accetta solo richieste di tipo post con il bottone submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset(($_POST['submit']))) {
-    
+
+    // verifico il token csrf prima di fare qualsiasi altra cosa
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        header('Location: register.php?errore_registrazione');
+        exit;
+    }
+
     // salviamo e sanifichiamo gli input
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
@@ -96,8 +107,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset(($_POST['submit']))) {
 
         } catch (PDOException $e) {
 
-            // se la query va male salviamo l'errore nel file di log
-            error_log("errore al login ".$e->getMessage());
+            // controlliamo se è un errore di email duplicata (codice SQLSTATE 23000 = unique constraint)
+            if ($e->getCode() === '23000') {
+                $_SESSION['errors'] = ['email' => 'Questa email è già registrata. Prova ad accedere.'];
+                $_SESSION['previous_input'] = ['name' => $name, 'email' => $email];
+                header('Location: register.php');
+                exit;
+            }
+
+            // altri errori generici
+            error_log("errore alla registrazione ".$e->getMessage());
             header('Location: register.php?errore_registrazione');
             exit;
             
@@ -146,29 +165,47 @@ include __DIR__ . '/../includes/head.php';
                     </div>
                     
                     <form method="POST" action="">
+                        <!-- campo nascosto per la protezione csrf -->
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+
+                        <?php if (isset($_GET['errore_registrazione'])): ?>
+                            <div class="alert alert-error mb-4">
+                                <span>Si è verificato un errore tecnico. Riprova più tardi.</span>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="mb-4">
                             <label for="nome" class="form-label">Nome Completo</label>
                             <div class="input-group-custom">
                                 <i class="fa-regular fa-user input-icon"></i>
-                                <input type="text" class="<?= $name_error_message ? 'has-error' : 'form-control'?>" id="nome" name="name" placeholder="Mario Rossi" value="<?= $previous_name ?>" required>
+                                <input type="text" class="form-control <?= $name_error_message ? 'has-error' : ''?>" id="nome" name="name" placeholder="Mario Rossi" value="<?= $previous_name ?>" required>
                             </div>
+                            <?php if ($name_error_message): ?>
+                                <p class="text-danger small mt-1 ms-1"><i class="fa-solid fa-circle-exclamation me-1"></i><?= $name_error_message ?></p>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-4">
                             <label for="email" class="form-label">Email</label>
                             <div class="input-group-custom">
                                 <i class="fa-regular fa-envelope input-icon"></i>
-                                <input type="email" class="<?= $email_error_message ? 'has-error' : 'form-control' ?>" id="email" name="email" placeholder="mario.rossi@example.com" value="<?= $previous_email ?>" required>
+                                <input type="email" class="form-control <?= $email_error_message ? 'has-error' : '' ?>" id="email" name="email" placeholder="mario.rossi@example.com" value="<?= $previous_email ?>" required>
                             </div>
+                            <?php if ($email_error_message): ?>
+                                <p class="text-danger small mt-1 ms-1"><i class="fa-solid fa-circle-exclamation me-1"></i><?= $email_error_message ?></p>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-4">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group-custom">
                                 <i class="fa-solid fa-lock input-icon"></i>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Crea una password sicura" required>
+                                <input type="password" class="form-control <?= $password_error_message ? 'has-error' : '' ?>" id="password" name="password" placeholder="Crea una password sicura" required>
                                 <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
+                            <?php if ($password_error_message): ?>
+                                <p class="text-danger small mt-1 ms-1"><i class="fa-solid fa-circle-exclamation me-1"></i><?= $password_error_message ?></p>
+                            <?php endif; ?>
                         </div>
 
                         <button type="submit" name="submit" class="btn btn-primary w-100 py-3 text-uppercase">

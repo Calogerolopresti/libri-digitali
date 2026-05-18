@@ -10,6 +10,14 @@
         <i class="fa-solid fa-arrow-up"></i>
     </a>
 
+    <!-- Chatbot Widget Leo -->
+    <?php
+        // Calcoliamo la profondità della directory per trovare il percorso corretto del widget
+        $depth = substr_count($_SERVER['PHP_SELF'], '/') - 1;
+        $base  = str_repeat('../', max(0, $depth - 1));
+        include __DIR__ . '/chatbot_widget.php';
+    ?>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
