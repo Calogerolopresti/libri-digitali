@@ -259,10 +259,24 @@ include __DIR__ . '/../includes/select_prodotti.php';
                             </div>
                             <!-- Descrizione -->
                             <div class="col-12">
-                                <label for="descrizione_add" class="form-label fw-medium text-muted small">Descrizione
-                                    Estesa</label>
-                                <textarea class="form-control" id="descrizione_add" name="descrizione" rows="4"
-                                    placeholder="Inserisci la sinossi o i dettagli del libro..." required></textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="descrizione_add" class="form-label fw-medium text-muted small mb-0">Descrizione
+                                        Estesa</label>
+                                    <button type="button" id="btnGeneraDescrizione"
+                                        class="btn btn-sm rounded-pill px-3 fw-medium"
+                                        style="background: linear-gradient(135deg, #a31d1d, #c0392b); color: white; font-size: 0.75rem; border: none;"
+                                        title="Genera automaticamente la descrizione tramite IA">
+                                        <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Genera con IA
+                                    </button>
+                                </div>
+                                <div style="position: relative;">
+                                    <textarea class="form-control" id="descrizione_add" name="descrizione" rows="4"
+                                        placeholder="Inserisci la sinossi o i dettagli del libro..." required></textarea>
+                                    <div id="descrizione-loader" class="d-none" style="position: absolute; inset: 0; background: rgba(255,255,255,0.85); border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <div class="spinner-border spinner-border-sm text-danger" role="status"></div>
+                                        <span class="text-muted small">Leo sta scrivendo...</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">
@@ -458,7 +472,56 @@ include __DIR__ . '/../includes/select_prodotti.php';
                     }
                 });
             }
-        });
+            /**
+             * LOGICA AUTO-GENERAZIONE DESCRIZIONE CON IA
+             * Al click su "Genera con IA" legge titolo e formato dal form,
+             * chiama genera_descrizione.php via AJAX e popola la textarea
+             */
+            const btnGenera = document.getElementById('btnGeneraDescrizione');
+            if (btnGenera) {
+                btnGenera.addEventListener('click', function() {
+                    const titolo  = document.getElementById('titolo_add').value.trim();
+                    const formato = document.getElementById('formato_add').value;
+
+                    if (!titolo) {
+                        alert('Inserisci prima il titolo del libro per generare la descrizione.');
+                        document.getElementById('titolo_add').focus();
+                        return;
+                    }
+
+                    // Mostriamo il loader sull'area testo
+                    const loader  = document.getElementById('descrizione-loader');
+                    const textarea = document.getElementById('descrizione_add');
+                    loader.classList.remove('d-none');
+                    loader.style.display = 'flex';
+                    btnGenera.disabled = true;
+
+                    const formData = new FormData();
+                    formData.append('titolo', titolo);
+                    formData.append('formato', formato);
+
+                    fetch('genera_descrizione.php', { method: 'POST', body: formData })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.descrizione) {
+                                textarea.value = data.descrizione;
+                                // Animazione: evidenziamo il campo per far capire che è cambiato
+                                textarea.style.transition = 'background 0.4s';
+                                textarea.style.background = '#fdf2f2';
+                                setTimeout(() => { textarea.style.background = ''; }, 1000);
+                            } else {
+                                alert('Errore IA: ' + (data.errore || 'Risposta non valida.'));
+                            }
+                        })
+                        .catch(() => alert('Errore di connessione. Riprova.'))
+                        .finally(() => {
+                            loader.classList.add('d-none');
+                            loader.style.display = 'none';
+                            btnGenera.disabled = false;
+                        });
+                }); // fine btnGenera.addEventListener
+            }  // fine if (btnGenera)
+        }); // fine DOMContentLoaded
     </script>
 
     <?php include __DIR__ . '/../includes/footer.php'; ?>

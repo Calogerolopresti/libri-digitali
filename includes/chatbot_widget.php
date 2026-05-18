@@ -4,6 +4,21 @@
      La comunicazione con l'IA avviene via AJAX verso chatbot.php
      ======================================================== -->
 
+<?php
+// Calcoliamo il percorso assoluto verso chatbot.php 
+// In questo modo funziona correttamente sia dalla root che da /admin/ o /auth/
+$chatbot_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+    . '://' . $_SERVER['HTTP_HOST']
+    . rtrim(dirname(dirname($_SERVER['PHP_SELF'])), '/admin')
+    . '/libri-digitali/chatbot.php';
+
+// Approccio più semplice: usiamo il path relativo calcolato dalla root del sito
+$script_path = $_SERVER['PHP_SELF'];
+$depth = substr_count(trim($script_path, '/'), '/');
+// Se siamo in una sottocartella (admin/, auth/) usiamo ../chatbot.php, altrimenti chatbot.php
+$chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
+?>
+
 <style>
     /* --- Pulsante flottante per aprire/chiudere la chat --- */
     #chatbot-toggle {
@@ -259,9 +274,8 @@
     let isOpen        = false;
     let hasNewMessage = false;
 
-    // Determina il percorso corretto di chatbot.php
-    // Funziona sia da /auth/ che dalla root del sito
-    const base = window.location.pathname.includes('/auth/') ? '../chatbot.php' : 'chatbot.php';
+    // Percorso verso chatbot.php calcolato lato PHP in base alla profondità della directory
+    const base = '<?php echo $chatbot_path; ?>';
 
     // Apertura / chiusura della finestra chat
     function toggleChat() {
