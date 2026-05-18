@@ -86,93 +86,101 @@ include '../includes/select_prodotti.php';
         <?php endif; ?>
 
         <!-- Tabella Prodotti -->
-        <div class="card border-0 shadow-sm rounded-4 p-2">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-custom align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" class="ps-4 text-muted fw-medium rounded-start" style="width: 80px;">
-                                    Copertina</th>
-                                <th scope="col" class="text-muted fw-medium">Titolo e Autore</th>
-                                <th scope="col" class="text-muted fw-medium">Prezzo</th>
-                                <th scope="col" class="text-muted fw-medium">Formato</th>
-                                <th scope="col" class="text-muted fw-medium text-center">Stock</th>
-                                <th scope="col" class="text-center pe-4 text-muted fw-medium rounded-end">Azioni</th>
-                            </tr>
-                        </thead>
-                        <tbody class="border-top-0">
-                            <!-- Riga 1 -->
-                            <?php foreach ($libri as $libro): ?>
-                                <tr>
-                                    <td class="ps-4 py-3">
-                                        <img src="<?php echo htmlspecialchars($libro['copertina']) ?>" alt="Copertina"
-                                            class="rounded shadow-sm" style="object-fit: cover; height:100px">
-                                    </td>
-                                    <td>
-                                        <h6 class="fw-bold mb-1 text-secondary-color">
-                                            <?php echo htmlspecialchars($libro['titolo']) ?>
-                                        </h6>
-                                    </td>
-                                    <td class="fw-bold text-primary">€ <?php echo htmlspecialchars($libro['prezzo']) ?></td>
-                                    <!-- mostro la tipoligia in base al formato  -->
-                                    <td>
-                                        <?php if ($libro['formato'] == 'fisico'): ?>
-                                            <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
-                                                style="background-color: #a31d1d; color: white; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #7a0c0c;">
-                                                <i class="bi bi-book-fill"></i> CARTACEO
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
-                                                style="background-color: #fdf2f2; color: #a31d1d; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #f2d7d7;">
-                                                <i class="bi bi-phone-vibrate"></i> E-BOOK
-                                            </span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <!-- mostro la disponibilità in base al formato  -->
-                                    <?php if ($libro['formato'] == 'fisico'): ?>
-                                        <td class="text-center"><span
-                                                class="badge bg-secondary small fw-medium"><?php echo htmlspecialchars($libro['disponibilita']) ?>
-                                                pz</span></td>
-                                    <?php else: ?>
-                                        <td class="text-center"><span
-                                                class="badge bg-secondary small fw-medium">∞</span></td>
-                                    <?php endif ?>
-
-                                    <td class="text-center pe-4">
-                                        <!-- Pulsante Modifica: rimosso ID fisso, aggiunto echo tramite  -->
-                                        <button
-                                            type="button"
-                                            class="btn-edit btn btn-sm btn-outline-secondary border-0 rounded-circle"
-                                            data-id="<?= $libro['id'] ?>"
-                                            data-titolo="<?= htmlspecialchars($libro['titolo']) ?>"
-                                            data-prezzo="<?= htmlspecialchars($libro['prezzo']) ?>"
-                                            data-formato="<?= htmlspecialchars($libro['formato']) ?>"
-                                            data-disponibilita="<?= htmlspecialchars($libro['disponibilita']) ?>"
-                                            data-copertina="<?= htmlspecialchars($libro['copertina']) ?>"
-                                            data-descrizione="<?= htmlspecialchars($libro['descrizione']) ?>"
-                                            style="width: 35px; height: 35px;"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editProductModal">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-
-                                        <!-- Pulsante Elimina: corretto echo e uniformata variabile -->
-                                        <a href="elimina.php?id=<?= htmlspecialchars($libro['id']) ?>"
-                                            class="btn btn-sm btn-outline-danger border-0 rounded-circle d-inline-flex align-items-center justify-content-center p-0"
-                                            style="width: 35px; height: 35px;"
-                                            title="Elimina"
-                                            onclick="return confirm('Vuoi davvero eliminare questo libro?')">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach ?>
-                        </tbody>
-                    </table>
+        <?php if (empty($libri) || !isset($libri)): ?>
+            <div class="alert alert-warning d-flex align-items-center my-4" role="alert">
+                <i class="bi bi-info-circle-fill flex-shrink-0 me-2" style="font-size: 1.2rem;"></i>
+                <div>
+                    Non ci sono libri disponibili al momento.
                 </div>
+            </div>
+        <?php else: ?>
+            <div class="card border-0 shadow-sm rounded-4 p-2">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-custom align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="ps-4 text-muted fw-medium rounded-start" style="width: 80px;">
+                                        Copertina</th>
+                                    <th scope="col" class="text-muted fw-medium">Titolo e Autore</th>
+                                    <th scope="col" class="text-muted fw-medium">Prezzo</th>
+                                    <th scope="col" class="text-muted fw-medium">Formato</th>
+                                    <th scope="col" class="text-muted fw-medium text-center">Stock</th>
+                                    <th scope="col" class="text-center pe-4 text-muted fw-medium rounded-end">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                <!-- Riga 1 -->
+                                <?php foreach ($libri as $libro): ?>
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <img src="<?php echo htmlspecialchars($libro['copertina']) ?>" alt="Copertina"
+                                                class="rounded shadow-sm" style="object-fit: cover; height:100px">
+                                        </td>
+                                        <td>
+                                            <h6 class="fw-bold mb-1 text-secondary-color">
+                                                <?php echo htmlspecialchars($libro['titolo']) ?>
+                                            </h6>
+                                        </td>
+                                        <td class="fw-bold text-primary">€ <?php echo htmlspecialchars($libro['prezzo']) ?></td>
+                                        <!-- mostro la tipoligia in base al formato  -->
+                                        <td>
+                                            <?php if ($libro['formato'] == 'fisico'): ?>
+                                                <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
+                                                    style="background-color: #a31d1d; color: white; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #7a0c0c;">
+                                                    <i class="bi bi-book-fill"></i> CARTACEO
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
+                                                    style="background-color: #fdf2f2; color: #a31d1d; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #f2d7d7;">
+                                                    <i class="bi bi-phone-vibrate"></i> E-BOOK
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <!-- mostro la disponibilità in base al formato  -->
+                                        <?php if ($libro['formato'] == 'fisico'): ?>
+                                            <td class="text-center"><span
+                                                    class="badge bg-secondary small fw-medium"><?php echo htmlspecialchars($libro['disponibilita']) ?>
+                                                    pz</span></td>
+                                        <?php else: ?>
+                                            <td class="text-center"><span
+                                                    class="badge bg-secondary small fw-medium">∞</span></td>
+                                        <?php endif ?>
 
-                <!-- <div class="d-flex justify-content-between align-items-center mt-3 px-4 py-3 border-top">
+                                        <td class="text-center pe-4">
+                                            <!-- Pulsante Modifica: rimosso ID fisso, aggiunto echo tramite  -->
+                                            <button
+                                                type="button"
+                                                class="btn-edit btn btn-sm btn-outline-secondary border-0 rounded-circle"
+                                                data-id="<?= $libro['id'] ?>"
+                                                data-titolo="<?= htmlspecialchars($libro['titolo']) ?>"
+                                                data-prezzo="<?= htmlspecialchars($libro['prezzo']) ?>"
+                                                data-formato="<?= htmlspecialchars($libro['formato']) ?>"
+                                                data-disponibilita="<?= htmlspecialchars($libro['disponibilita']) ?>"
+                                                data-copertina="<?= htmlspecialchars($libro['copertina']) ?>"
+                                                data-descrizione="<?= htmlspecialchars($libro['descrizione']) ?>"
+                                                style="width: 35px; height: 35px;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editProductModal">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+
+                                            <!-- Pulsante Elimina: corretto echo e uniformata variabile -->
+                                            <a href="elimina.php?id=<?= htmlspecialchars($libro['id']) ?>"
+                                                class="btn btn-sm btn-outline-danger border-0 rounded-circle d-inline-flex align-items-center justify-content-center p-0"
+                                                style="width: 35px; height: 35px;"
+                                                title="Elimina"
+                                                onclick="return confirm('Vuoi davvero eliminare questo libro?')">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- <div class="d-flex justify-content-between align-items-center mt-3 px-4 py-3 border-top">
                     <span class="text-muted small">Mostrando 1-3 di 45 prodotti</span>
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm mb-0">
@@ -187,8 +195,9 @@ include '../includes/select_prodotti.php';
                         </ul>
                     </nav>
                 </div> -->
+                </div>
             </div>
-        </div>
+        <?php endif ?>
     </main>
 
     <!-- Modal Aggiungi Prodotto -->
