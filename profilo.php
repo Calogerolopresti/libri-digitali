@@ -111,6 +111,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include __DIR__ . '/includes/head.php'; ?>
 
+<style>
+    /*
+     * FIX MODAL: .fade-in sul body usa transform:translateY() che crea
+     * un nuovo stacking context e rompe position:fixed delle modal Bootstrap.
+     * Sovrascriviamo l'animazione sul body con una solo-opacity.
+     */
+    body.fade-in {
+        animation: fadeInBodyOnly 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes fadeInBodyOnly {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+</style>
+
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
     <?php include __DIR__ . '/includes/navbar_user.php'; ?>

@@ -150,6 +150,33 @@ if (isset($_GET['id'])) {
                         </p>
                     </div>
 
+                    <!-- Smart Box IA -->
+                    <div class="mb-4 p-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #e2e8f0; position: relative; overflow: hidden;">
+                        <div style="position: absolute; top: -20px; right: -20px; opacity: 0.05; transform: rotate(-15deg);">
+                            <i class="fa-solid fa-robot" style="font-size: 8rem;"></i>
+                        </div>
+                        <h5 class="fw-bold mb-2" style="color: #334155;">
+                            <i class="fa-solid fa-wand-magic-sparkles text-primary me-2"></i> Chiedi all'IA
+                        </h5>
+                        <p class="text-muted small mb-3" style="position: relative; z-index: 1;">
+                            Curioso di sapere di cosa parla? Lascia che la nostra Intelligenza Artificiale generi una breve trama senza spoiler per questo libro!
+                        </p>
+                        <button id="btnGeneraTrama" type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-medium shadow-sm" style="position: relative; z-index: 1;">
+                            <i class="fa-solid fa-bolt me-1"></i> Genera Trama
+                        </button>
+                        
+                        <div id="tramaContainer" class="mt-3 p-3 bg-white rounded-3 shadow-sm d-none border border-light" style="position: relative; z-index: 1;">
+                            <div class="d-flex align-items-center mb-2 d-none" id="tramaLoader">
+                                <div class="spinner-grow spinner-grow-sm text-primary me-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="text-primary small fw-medium">Elaborazione magica in corso...</span>
+                            </div>
+                            <div id="tramaText" class="text-secondary-color" style="font-size: 0.95rem; line-height: 1.6;"></div>
+                        </div>
+                    </div>
+                    <!-- Fine Smart Box IA -->
+
                     <form action="" method="POST">
                         <!-- campo nascosto per la protezione csrf -->
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -186,12 +213,42 @@ if (isset($_GET['id'])) {
                     </div>
                 </div>
             </div>
+
+            <!-- Script per Smart Box IA -->
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('btnGeneraTrama');
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        const container = document.getElementById('tramaContainer');
+                        const loader = document.getElementById('tramaLoader');
+                        const text = document.getElementById('tramaText');
+                        
+                        btn.disabled = true;
+                        container.classList.remove('d-none');
+                        loader.classList.remove('d-none');
+                        text.innerHTML = '';
+                        
+                        fetch('genera_trama.php?titolo=<?php echo urlencode($libro['titolo']); ?>')
+                            .then(response => response.text())
+                            .then(data => {
+                                loader.classList.add('d-none');
+                                text.innerHTML = '<i class="fa-solid fa-quote-left text-muted me-2" style="opacity: 0.5;"></i>' + data;
+                                btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Trama Generata';
+                            })
+                            .catch(error => {
+                                loader.classList.add('d-none');
+                                text.innerHTML = '<span class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> Si è verificato un errore di connessione.</span>';
+                                btn.disabled = false;
+                            });
+                    });
+                }
+            });
+            </script>
             <!-- se non esiste o è vuoto do il messaggio di errore      -->
         <?php else: ?>
             
         <?php endif ?>
     </main>
-
-
 
     <?php include __DIR__ . '/includes/footer.php'; ?>

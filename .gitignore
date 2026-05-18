@@ -1,3 +1,5 @@
 # file con le credenziali del db - non caricare su git
 config/secrets.php
+# chiave API Groq - non caricare su git
+config/groq.php
 .DS_Store
