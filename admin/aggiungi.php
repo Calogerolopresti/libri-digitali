@@ -20,11 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // controllo url della copertina e se cè problema metto come coperina una mia default 
-    $copertina = filter_var($_POST['copertina'], FILTER_VALIDATE_URL) ? $_POST['copertina'] : 'default.jpg';
+    $copertina = filter_var($_POST['copertina'], FILTER_VALIDATE_URL) ? $_POST['copertina'] : 'https://img.magnific.com/foto-gratuito/copertina-anteriore-di-un-libro-a-copertina-rossa_1101-833.jpg';
     try{
+        if($_POST['quantita']<0 || !isset($_POST['quantita']) || $_POST['quantita']==null ){
+            $quantita=0;
+        }else{
+            $quantita=$_POST['quantita'];
+        }
         $sql="INSERT INTO Prodotti (titolo,descrizione,prezzo, formato, disponibilita,copertina) VALUES (?,?,?,?,?,?)";
         $stmt=$pdo->prepare($sql);
-        $stmt->execute([$_POST['titolo'],$_POST['descrizione'],$_POST['prezzo'],$_POST['formato'],$_POST['disponibilita'],$copertina]);
+        $stmt->execute([$_POST['titolo'],$_POST['descrizione'],$_POST['prezzo'],$_POST['formato'],$quantita,$copertina]);
         header('Location:index.php');
         exit();
     }catch(PDOException $e){

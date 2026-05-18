@@ -6,8 +6,8 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // creo il csft token se non esiste gia in sessione 
-if(!isset($_SESSION['csfr_token'])){
-    $_SESSION['csfr_token']= bin2hex(random_bytes(32));
+if (!isset($_SESSION['csfr_token'])) {
+    $_SESSION['csfr_token'] = bin2hex(random_bytes(32));
 }
 
 // controllo se l utente è con ruolo user o se ha mai fatto accesso e se non lo è lo butto fuori 
@@ -58,9 +58,32 @@ include '../includes/select_prodotti.php';
             </button>
         </div>
 
-        <?php if(isset($_GET['errore_update'])):?>
-            <p>errore durante inserimento dei dati</p>
-        <?php endif?>
+        <?php if (isset($_GET['errore_update'])): ?>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <span class="fs-4 me-2">⚠️</span>
+                <div>
+                    <strong>Errore di modifica:</strong> I dati non sono stati aggiornati correttamente. Riprova.
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['errore_insert'])): ?>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <span class="fs-4 me-2">❌</span>
+                <div>
+                    <strong>Errore di inserimento:</strong> Impossibile salvare i nuovi dati. Controlla i campi.
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['errore_delete'])): ?>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <span class="fs-4 me-2">🗑️</span>
+                <div>
+                    <strong>Errore di eliminazione:</strong> Si è verificato un problema durante la rimozione dei dati.
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- Tabella Prodotti -->
         <div class="card border-0 shadow-sm rounded-4 p-2">
@@ -149,7 +172,7 @@ include '../includes/select_prodotti.php';
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3 px-4 py-3 border-top">
+                <!-- <div class="d-flex justify-content-between align-items-center mt-3 px-4 py-3 border-top">
                     <span class="text-muted small">Mostrando 1-3 di 45 prodotti</span>
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm mb-0">
@@ -163,7 +186,7 @@ include '../includes/select_prodotti.php';
                                         class="fa-solid fa-chevron-right"></i></a></li>
                         </ul>
                     </nav>
-                </div>
+                </div> -->
             </div>
         </div>
     </main>
@@ -181,7 +204,7 @@ include '../includes/select_prodotti.php';
                 <div class="modal-body p-4">
                     <form method="POST" action="aggiungi.php" enctype="multipart/form-data">
                         <div class="row g-4">
-                            <input type="hidden" name="csfr_token" value="<?=htmlspecialchars($_SESSION['csfr_token'])?>">
+                            <input type="hidden" name="csfr_token" value="<?= htmlspecialchars($_SESSION['csfr_token']) ?>">
                             <!-- Titolo -->
                             <div class="col-md-8">
                                 <label for="titolo_add" class="form-label fw-medium text-muted small">Titolo Libro
@@ -262,7 +285,7 @@ include '../includes/select_prodotti.php';
                         <!-- input hidden per l'ID del prodotto da modificare -->
                         <input type="hidden" name="id_prodotto" id="id_prodotto_edit" value="1">
 
-                        <input type="hidden" name="csfr_token" value="<?=htmlspecialchars($_SESSION['csfr_token'])?>">
+                        <input type="hidden" name="csfr_token" value="<?= htmlspecialchars($_SESSION['csfr_token']) ?>">
 
                         <div class="row g-4">
                             <!-- Titolo -->
@@ -319,7 +342,7 @@ include '../includes/select_prodotti.php';
                                     required>Un celebre romanzo di Umberto Eco ambientato nel Medioevo...</textarea>
                             </div>
                         </div>
-                        
+
                         <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top">
                             <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
                                 data-bs-dismiss="modal">Annulla</button>

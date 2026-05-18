@@ -19,11 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     try {
         // Se deve essere un URL valido
-        $copertina = filter_var($_POST['copertina'], FILTER_VALIDATE_URL) ? $_POST['copertina'] : 'default.jpg';
-
+        $copertina = filter_var($_POST['copertina'], FILTER_VALIDATE_URL) ? $_POST['copertina'] : 'https://img.magnific.com/foto-gratuito/copertina-anteriore-di-un-libro-a-copertina-rossa_1101-833.jpg';
+        if($_POST['quantita']<0 || !isset($_POST['quantita']) || $_POST['quantita']==null ){
+            $quantita=0;
+        }else{
+            $quantita=$_POST['quantita'];
+        }
         $sql = "UPDATE Prodotti SET titolo=?,descrizione=?,prezzo=?,formato=?,disponibilita=?,copertina=? WHERE id=?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$_POST['titolo'], $_POST['descrizione'], (float)$_POST['prezzo'], $_POST['formato'], (int)$_POST['quantita'], $copertina, (int)$_POST['id_prodotto']]);
+        $stmt->execute([$_POST['titolo'], $_POST['descrizione'], (float)$_POST['prezzo'], $_POST['formato'], (int)$quantita, $copertina, (int)$_POST['id_prodotto']]);
         header('Location:index.php');
         exit();
     } catch (PDOException $e) {
