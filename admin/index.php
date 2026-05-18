@@ -16,10 +16,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
     exit();
 }
 $libri = [];
-include '../includes/select_prodotti.php';
+include __DIR__ . '/../includes/select_prodotti.php';
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/../includes/head.php'; ?>
 
 <style>
     /*
@@ -44,7 +44,7 @@ include '../includes/select_prodotti.php';
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_admin.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_admin.php'; ?>
 
     <!-- Admin Content -->
     <main class="container-fluid px-4 mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
@@ -461,4 +461,4 @@ include '../includes/select_prodotti.php';
         });
     </script>
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/../includes/footer.php'; ?>

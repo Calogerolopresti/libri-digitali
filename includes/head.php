@@ -11,5 +11,5 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/libri-digitali/assets/css/styles.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles.css">
 </head>

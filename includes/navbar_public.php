@@ -1,7 +1,7 @@
     <!-- Navbar Sticky -->
     <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/libri-digitali/index.php">
+            <a class="navbar-brand d-flex align-items-center" href="<?php echo BASE_URL; ?>/index.php">
                 <i class="fa-solid fa-book-open me-2 text-primary"></i>
                 E-Book & Co. 
             </a>
@@ -13,10 +13,10 @@
                     <!-- Eventuali link generici qui -->
                 </ul>
                 <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
-                    <a href="/libri-digitali/auth/login.php" class="btn btn-outline-primary nav-btn px-4">
+                    <a href="<?php echo BASE_URL; ?>/auth/login.php" class="btn btn-outline-primary nav-btn px-4">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> Accedi
                     </a>
-                    <a href="/libri-digitali/auth/register.php" class="btn btn-primary nav-btn px-4">
+                    <a href="<?php echo BASE_URL; ?>/auth/register.php" class="btn btn-primary nav-btn px-4">
                         <i class="fa-solid fa-user-plus"></i> Registrati
                     </a>
                 </div>

@@ -1,6 +1,6 @@
 <?php
 // importo collegamento al db e avvio la sessione se non è già avviata 
-require_once '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -70,10 +70,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 
 
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/../includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in ">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_public.php'; ?>
+    <?php include __DIR__ . '/../includes/navbar_public.php'; ?>
 
 <!-- Login Form -->
     <main class="container flex-grow-1 auth-wrapper fade-in fade-in-delay-1" style="margin-top: 80px;">
@@ -121,4 +121,4 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 
     
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/../includes/footer.php'; ?>

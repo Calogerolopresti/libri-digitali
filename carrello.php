@@ -134,11 +134,11 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
 }
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/includes/navbar_user.php'; ?>
 
     <!-- Cart Content -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
@@ -387,4 +387,4 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'acquista') {
     </script>
 
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>

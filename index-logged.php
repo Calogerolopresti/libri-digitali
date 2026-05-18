@@ -16,10 +16,10 @@ if(!isset($_SESSION['user_id']) || $_SESSION['ruolo']!=='user'){
 ?>
 
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 <body class="d-flex flex-column min-vh-100 fade-in ">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/includes/navbar_user.php'; ?>
 
 <!-- Hero Section -->
     <section class="hero-section fade-in fade-in-delay-1">
@@ -71,4 +71,4 @@ if(!isset($_SESSION['user_id']) || $_SESSION['ruolo']!=='user'){
 
     
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>

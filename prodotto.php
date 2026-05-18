@@ -83,15 +83,15 @@ if (isset($_GET['id'])) {
 }
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
     <!-- mostro una navbar diversa in base all user  -->
     <?php if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] == 'user') {
-        include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php';
+        include __DIR__ . '/includes/navbar_user.php';
     } else {
-        include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_public.php';
+        include __DIR__ . '/includes/navbar_public.php';
     }
     ?>
 
@@ -188,4 +188,4 @@ if (isset($_GET['id'])) {
 
 
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>

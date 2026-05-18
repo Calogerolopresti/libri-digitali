@@ -108,11 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/head.php'; ?>
+<?php include __DIR__ . '/includes/head.php'; ?>
 
 <body class="d-flex flex-column min-vh-100 fade-in pt-5 mt-4 bg-light">
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/navbar_user.php'; ?>
+    <?php include __DIR__ . '/includes/navbar_user.php'; ?>
 
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
         <h2 class="fw-bold text-secondary-color mb-4">Ciao, <span class="text-primary"><?php echo htmlspecialchars($_SESSION['user_nome']) ?></span>!</h2>
@@ -298,5 +298,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <?php include $_SERVER['DOCUMENT_ROOT'] . '/libri-digitali/includes/footer.php'; ?>
+    <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>
