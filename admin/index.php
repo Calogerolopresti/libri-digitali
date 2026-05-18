@@ -5,6 +5,11 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// creo il csft token se non esiste gia in sessione 
+if(!isset($_SESSION['csfr_token'])){
+    $_SESSION['csfr_token']= bin2hex(random_bytes(32));
+}
+
 // controllo se l utente è con ruolo user o se ha mai fatto accesso e se non lo è lo butto fuori 
 if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
     header('Location:../index.php');
@@ -52,6 +57,10 @@ include '../includes/select_prodotti.php';
                 <i class="fa-solid fa-plus me-2"></i> Aggiungi Prodotto
             </button>
         </div>
+
+        <?php if(isset($_GET['errore_update'])):?>
+            <p>errore durante inserimento dei dati</p>
+        <?php endif?>
 
         <!-- Tabella Prodotti -->
         <div class="card border-0 shadow-sm rounded-4 p-2">
@@ -249,8 +258,10 @@ include '../includes/select_prodotti.php';
                 </div>
                 <div class="modal-body p-4">
                     <form method="POST" action="modifica.php" enctype="multipart/form-data">
-                        <!-- Input hidden per l'ID del prodotto da modificare -->
+                        <!-- input hidden per l'ID del prodotto da modificare -->
                         <input type="hidden" name="id_prodotto" id="id_prodotto_edit" value="1">
+
+                        <input type="hidden" name="csfr_token" value="<?=htmlspecialchars($_SESSION['csfr_token'])?>">
 
                         <div class="row g-4">
                             <!-- Titolo -->
