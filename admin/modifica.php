@@ -11,22 +11,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['ruolo'] !== 'admin') {
     exit();
 }
 // aggiungere controllo token csrf 
-if($_SERVER['REQUEST_METHOD']=='POST'){
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // controllo che ci sia e sia corretto il csfr toker 
-    if(!isset($_POST['csfr_token']) || $_POST['csfr_token']!==$_SESSION['csfr_token']){
+    if (!isset($_POST['csfr_token']) || $_POST['csfr_token'] !== $_SESSION['csfr_token']) {
         header('Location:index.php?errore_update');
         exit();
     }
-    try{
-        $sql="UPDATE Prodotti SET titolo=?,descrizione=?,prezzo=?,formato=?,disponibilita=?,copertina=? WHERE id=?";
-        $stmt=$pdo->prepare($sql);
-        $stmt->execute([$_POST['titolo'],$_POST['descrizione'],$_POST['prezzo'],$_POST['formato'],$_POST['quantita'],$_POST['copertina'],$_POST['id_prodotto']]);
+    try {
+        // Se deve essere un URL valido
+        $copertina = filter_var($_POST['copertina'], FILTER_VALIDATE_URL) ? $_POST['copertina'] : 'default.jpg';
+
+        $sql = "UPDATE Prodotti SET titolo=?,descrizione=?,prezzo=?,formato=?,disponibilita=?,copertina=? WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$_POST['titolo'], $_POST['descrizione'], (float)$_POST['prezzo'], $_POST['formato'], (int)$_POST['quantita'], $copertina, (int)$_POST['id_prodotto']]);
         header('Location:index.php');
         exit();
-    }catch(PDOException $e){
+    } catch (PDOException $e) {
         error_log("errore modifica profilo: " . $e->getMessage());
         header('Location:index.php?errore_update');
         exit();
     }
 }
-?>
