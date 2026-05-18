@@ -181,6 +181,7 @@ include '../includes/select_prodotti.php';
                 <div class="modal-body p-4">
                     <form method="POST" action="aggiungi.php" enctype="multipart/form-data">
                         <div class="row g-4">
+                            <input type="hidden" name="csfr_token" value="<?=htmlspecialchars($_SESSION['csfr_token'])?>">
                             <!-- Titolo -->
                             <div class="col-md-8">
                                 <label for="titolo_add" class="form-label fw-medium text-muted small">Titolo Libro

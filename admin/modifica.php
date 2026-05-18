@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location:index.php');
         exit();
     } catch (PDOException $e) {
-        error_log("errore modifica profilo: " . $e->getMessage());
+        error_log("errore modifica prodotto: " . $e->getMessage());
         header('Location:index.php?errore_update');
         exit();
     }
