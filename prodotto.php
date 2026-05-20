@@ -54,15 +54,20 @@ if (isset($_GET['id'])) {
                                 if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
                                 
                                 // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
+                                $isBundle = (isset($_POST['aggiungi_ebook']) && $_POST['aggiungi_ebook'] == '1' && $libro['formato'] == 'fisico');
+                                $prezzoBase = (float) str_replace(',', '.', $libro['prezzo']);
+                                $prezzoFinale = $isBundle ? ($prezzoBase + 2.00) : $prezzoBase;
+                                $formatoFinale = $isBundle ? 'ibrido' : $libro['formato'];
+
                                 $_SESSION['carrello'][$id] = [
                                     'titolo'    => $libro['titolo'],
                                     'copertina' => $libro['copertina'],
-                                    'formato'   => $libro['formato'],
-                                    'prezzo'    => number_format((float) str_replace(',', '.', $libro['prezzo']), 2, '.', ''),
+                                    'formato'   => $formatoFinale,
+                                    'prezzo'    => number_format($prezzoFinale, 2, '.', ''),
                                     'quantita'  => $quantitaRichiestaTotal,
                                     'quantitaMax' => $quantitaMassima
                                 ];
-                                $messaggio = "Prodotto aggiunto correttamente al carrello";
+                                $messaggio = $isBundle ? "Bundle Ibrido (Cartaceo + eBook) aggiunto al carrello!" : "Prodotto aggiunto correttamente al carrello";
                             } else {
                                 // errore se la quantita richiesta è maggiore di quella disponibile 
                                 $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
@@ -188,6 +193,25 @@ if (isset($_GET['id'])) {
                     <form action="" method="POST">
                         <!-- campo nascosto per la protezione csrf -->
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
+                        
+                        <?php if ($libro['formato'] == 'fisico'): ?>
+                            <!-- Smart Box Combo eBook -->
+                            <div class="p-3 mb-3 rounded-4 shadow-sm d-flex align-items-center justify-content-between border border-light" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="text-success" style="font-size: 1.8rem;">
+                                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: #14532d;">Bundle Ibrido Promo</h6>
+                                        <p class="text-muted mb-0 small">Ottieni anche l'eBook digitale immediato con soli +2,00€!</p>
+                                    </div>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input text-success fs-4 cursor-pointer" type="checkbox" id="aggiungiEbook" name="aggiungi_ebook" value="1">
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="d-flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white rounded-3 shadow-sm border border-light">
                             <div class="d-flex align-items-center me-2">
                                 <label for="quantita" class="fw-medium text-muted mb-0 me-3">Quantità:</label>

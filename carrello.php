@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // recuperiamo l ultimo id crearo nell insert 
                 $id_ordine_creato = $pdo->lastInsertId();
 
-                $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario) VALUES (?,?,?,?)";
+                $sql_dettagli = "INSERT INTO Dettagli_Ordine(id_ordine, id_prodotto, quantita, prezzo_unitario, formato) VALUES (?,?,?,?,?)";
                 $stmt_dettagli = $pdo->prepare($sql_dettagli);
                 // aggiorno la quantita solo se c'è ancora disponibilita per evitare che due utenti comprino l ultimo pezzo contemporaneamente
                 // NOTA: usiamo :qta1 e :qta2 perché PDO non supporta lo stesso parametro nominato due volte nella stessa query
@@ -120,8 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_quantita = $pdo->prepare($sql_quantita);
 
                 foreach ($carrello as $id_prodotto => $dati) {
-                    $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo']]);
-                    if ($dati['formato'] === 'fisico') {
+                    $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo'], $dati['formato']]);
+                    if ($dati['formato'] === 'fisico' || $dati['formato'] === 'ibrido') {
                         $stmt_quantita->execute([
                             ':qta1'    => $dati['quantita'],
                             ':qta2'    => $dati['quantita'],
@@ -231,6 +231,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             </h6>
                                                             <?php if ($dati['formato'] == 'fisico'): ?>
                                                                 <span class="badge bg-success small fw-medium">Cartaceo</span>
+                                                            <?php elseif ($dati['formato'] == 'ibrido'): ?>
+                                                                <span class="badge bg-warning text-dark small fw-medium"><i class="fa-solid fa-layer-group me-1"></i> Ibrido (Cartaceo + eBook)</span>
                                                             <?php else : ?>
                                                                 <span class="badge bg-info small fw-medium">eBook</span>
                                                             <?php endif ?>

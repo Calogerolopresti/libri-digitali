@@ -58,7 +58,7 @@ if (isset($_GET['id'])) {
         $sql = "SELECT 
                 Prodotti.titolo as titolo, 
                 Prodotti.copertina as copertina, 
-                Prodotti.formato as formato, 
+                COALESCE(Dettagli_Ordine.formato, Prodotti.formato) as formato, 
                 Dettagli_Ordine.prezzo_unitario as prezzo_unitario, 
                 Dettagli_Ordine.quantita as quantita
                 FROM Dettagli_Ordine
@@ -340,6 +340,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         <h6 class="fw-bold mb-1 text-secondary-color mb-0"><?php echo htmlspecialchars($dettaglio['titolo']) ?></h6>
                                                         <?php if ($dettaglio['formato'] == 'fisico'): ?>
                                                             <span class="badge bg-success small fw-medium">Cartaceo</span>
+                                                        <?php elseif ($dettaglio['formato'] == 'ibrido'): ?>
+                                                            <span class="badge bg-warning text-dark small fw-medium">Ibrido (Cartaceo + eBook)</span>
                                                         <?php else : ?>
                                                             <span class="badge bg-info small fw-medium">eBook</span>
                                                         <?php endif ?>
