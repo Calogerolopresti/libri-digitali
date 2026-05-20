@@ -34,6 +34,22 @@ try {
     $ordini = [];
 }
 
+// query per prendere quanti ordini ha fatto l utente e quanto ha speso negli ultimi 12 mesi
+try {
+    $sql_stats = "SELECT 
+                    COUNT(*) AS totale_ordini,
+                    COALESCE(SUM(totale_ordine), 0) AS totale_speso
+                  FROM Ordini 
+                  WHERE id_utente = ?
+                  AND data_ordine >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)";
+    $stmt_stats = $pdo->prepare($sql_stats);
+    $stmt_stats->execute([$user_id]);
+    $stats_annuali = $stmt_stats->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // in caso di errore mettiamo i valori a zero cosi non mostriamo niente di strano all utente
+    $stats_annuali = ['totale_ordini' => 0, 'totale_speso' => 0];
+}
+
 // quando il cliente clicca sui dettagli di un singolo ordine facciamo la query tramite join per recuperare informazioni in piu come copertina formato ecc che non si trovano nella tabella dettagli ordini 
 if (isset($_GET['id'])) {
     $dettaglio_ordine = (int)$_GET['id'];
@@ -150,8 +166,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
         <div class="row g-4">
-            <!-- Info Utente -->
-            <div class="col-lg-4">
+            <!-- colonna sinistra: info utente e statistiche impilate -->
+            <div class="col-lg-4 d-flex flex-column gap-4">
+
+                <!-- Info Utente -->
                 <div class="card border-0 shadow-sm rounded-4 p-2">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
@@ -169,6 +187,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button class="btn btn-outline-primary w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#editProfileModal"><i class="fa-solid fa-pen-to-square me-2"></i> Modifica Profilo</button>
                     </div>
                 </div>
+
+                <!-- Statistiche Ultimo Anno -->
+                <div class="card border-0 shadow-sm rounded-4 p-2">
+                    <div class="card-body p-4">
+                        <!-- intestazione della card statistiche -->
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Anno in Corso</h5>
+                                <p class="text-muted small mb-0">Ultimi 12 mesi</p>
+                            </div>
+                        </div>
+                        <!-- totale ordini nell ultimo anno -->
+                        <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-light rounded-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-bag-shopping text-primary"></i>
+                                <span class="text-muted small fw-medium">Ordini effettuati</span>
+                            </div>
+                            <span class="fw-bold fs-5 text-secondary-color">
+                                <?php echo (int)$stats_annuali['totale_ordini'] ?>
+                            </span>
+                        </div>
+                        <!-- totale speso nell ultimo anno -->
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-euro-sign text-primary"></i>
+                                <span class="text-muted small fw-medium">Totale speso</span>
+                            </div>
+                            <span class="fw-bold fs-5 text-primary">
+                                € <?php echo number_format((float)$stats_annuali['totale_speso'], 2, ',', '.') ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Storico Ordini -->

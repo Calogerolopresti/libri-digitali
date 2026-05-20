@@ -2,26 +2,38 @@
 // 1. Controlliamo se nella richiesta URL è presente il parametro 'titolo'
 if (isset($_GET['titolo'])) {
     // 2. Mettiamo in sicurezza il titolo del libro per evitare attacchi hacker
-    // escapeshellarg aggiunge degli apici intorno al testo, impedendo che qualcuno inserisca comandi di sistema
     $titolo = escapeshellarg($_GET['titolo']);
     
+    // prendiamo lo stile richiesto e lo filtriamo per sicurezza
+    $stile = isset($_GET['stile']) ? $_GET['stile'] : 'normale';
+    $allowed_styles = ['normale', 'spoiler', '3punti', 'bambini', 'recensione'];
+    if (!in_array($stile, $allowed_styles)) {
+        $stile = 'normale';
+    }
+    $stile_arg = escapeshellarg($stile);
+    
     // 3. Troviamo il percorso assoluto dello script Python
-    // __DIR__ indica la cartella attuale, a cui aggiungiamo il nome del file python
     $script_path = escapeshellarg(__DIR__ . '/ai_plot.py');
     
-    // 4. Prepariamo il comando da eseguire nel terminale.
-    // Struttura: python3 percorso/dello/script.py "Titolo del Libro"
-    // Il "2>&1" serve a catturare anche eventuali errori stampati dal terminale, oltre al normale output
-    $command = "python3 " . $script_path . " " . $titolo . " 2>&1";
+    // Cerchiamo il percorso assoluto di python3 (MAMP spesso ha il PATH limitato e non trova "python3" semplice)
+    $python_paths = [
+        '/usr/bin/python3',
+        '/usr/local/bin/python3',
+        '/opt/homebrew/bin/python3',
+        'python3',
+        'python'
+    ];
     
-    // 5. Eseguiamo effettivamente il comando e salviamo quello che risponde in $output
-    $output = shell_exec($command);
-    
-    // 6. Blocco di sicurezza (Fallback)
-    // Se python3 non è installato o non viene trovato, proviamo con il comando "python" standard
-    if ($output === null || strpos(strtolower($output), 'command not found') !== false) {
-        $command = "python " . $script_path . " " . $titolo . " 2>&1";
-        $output = shell_exec($command);
+    $output = null;
+    foreach ($python_paths as $python) {
+        $command = $python . " " . $script_path . " " . $titolo . " " . $stile_arg . " 2>&1";
+        $temp_output = shell_exec($command);
+        
+        // se ha funzionato e non dà errore di comando non trovato o file mancante, teniamo questo output
+        if ($temp_output !== null && !preg_match('/(command not found|sh: line)/i', $temp_output)) {
+            $output = $temp_output;
+            break;
+        }
     }
     
     // 7. Controlliamo se la risposta è vuota (c'è stato un problema imprevisto)
