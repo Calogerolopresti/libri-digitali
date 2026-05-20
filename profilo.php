@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row g-4">
             <!-- Info Utente -->
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
+                <div class="card border-0 shadow-sm rounded-4 p-2">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                             <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px; font-size: 1.5rem;">
