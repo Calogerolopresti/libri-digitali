@@ -1,21 +1,22 @@
 <?php
-// 1. Controlliamo se nella richiesta URL è presente il parametro 'titolo'
+// controlliamo se nel link get è stato passato il parametro del titolo del libro da cercare
 if (isset($_GET['titolo'])) {
-    // 2. Mettiamo in sicurezza il titolo del libro per evitare attacchi hacker
+    // mettiamo in sicurezza il titolo usando escapeshellarg cosi evitiamo exploit o che qualche hacker provi a fare command injection
     $titolo = escapeshellarg($_GET['titolo']);
     
-    // prendiamo lo stile richiesto e lo filtriamo per sicurezza
+    // prendiamo lo stile che ci chiede l utente e facciamo un controllo per sicurezza su un array di stili permessi
     $stile = isset($_GET['stile']) ? $_GET['stile'] : 'normale';
     $allowed_styles = ['normale', 'spoiler', '3punti', 'bambini', 'recensione'];
     if (!in_array($stile, $allowed_styles)) {
+        // se lo stile cercato non è tra quelli validi rimettiamo quello di default cosi siamo sicuri
         $stile = 'normale';
     }
     $stile_arg = escapeshellarg($stile);
     
-    // 3. Troviamo il percorso assoluto dello script Python
+    // prendiamo il percorso assoluto dello script python dell ia cosi lo trova di sicuro
     $script_path = escapeshellarg(__DIR__ . '/ai_plot.py');
     
-    // Cerchiamo il percorso assoluto di python3 (MAMP spesso ha il PATH limitato e non trova "python3" semplice)
+    // facciamo un array con tutti i possibili percorsi di python3 sul sistema (perchè su MAMP le variabili d ambiente sono limitate e a volte non trova il comando semplice)
     $python_paths = [
         '/usr/bin/python3',
         '/usr/local/bin/python3',
@@ -25,29 +26,28 @@ if (isset($_GET['titolo'])) {
     ];
     
     $output = null;
+    // proviamo a ciclare tutti i percorsi di python per trovare quello installato sul computer
     foreach ($python_paths as $python) {
+        // creiamo la stringa del comando passando lo script, il titolo e lo stile e reindirizziamo l errore standard cosi se fallisce lo vediamo
         $command = $python . " " . $script_path . " " . $titolo . " " . $stile_arg . " 2>&1";
         $temp_output = shell_exec($command);
         
-        // se ha funzionato e non dà errore di comando non trovato o file mancante, teniamo questo output
+        // se il comando ha funzionato senza dare l errore di comando non trovato o sh allora teniamo questo risultato e usciamo dal ciclo
         if ($temp_output !== null && !preg_match('/(command not found|sh: line)/i', $temp_output)) {
             $output = $temp_output;
             break;
         }
     }
     
-    // 7. Controlliamo se la risposta è vuota (c'è stato un problema imprevisto)
+    // controlliamo se l output che ci torna python è vuoto perche in quel caso cè stato un errore
     if (trim($output) === "") {
         echo "Errore nell'esecuzione dello script AI. Assicurati che Python sia installato e configurato.";
     } else {
-        // 8. Se tutto è andato bene, prepariamo il testo per essere mostrato in HTML
-        // htmlspecialchars: converte eventuali caratteri speciali (<, >) per evitare attacchi XSS
-        // nl2br: trasforma gli "a capo" testuali nel tag HTML <br>
-        // trim: rimuove gli spazi vuoti all'inizio e alla fine
+        // se è andato tutto liscio puliamo il testo con htmlspecialchars cosi blocchiamo XSS e convertiamo gli a capo in tag br
         echo nl2br(htmlspecialchars(trim($output)));
     }
 } else {
-    // Se qualcuno chiama questa pagina senza specificare il titolo, mostriamo un errore
+    // mostro l errore se qualcuno apre la pagina direttamente senza passargli niente
     echo "Titolo non fornito.";
 }
 ?>

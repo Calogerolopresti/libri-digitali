@@ -472,30 +472,29 @@ include __DIR__ . '/../includes/select_prodotti.php';
                     }
                 });
             }
-            /**
-             * LOGICA AUTO-GENERAZIONE DESCRIZIONE CON IA
-             * Al click su "Genera con IA" legge titolo e formato dal form,
-             * chiama genera_descrizione.php via AJAX e popola la textarea
-             */
+
+            // gestiamo il click sul pulsante per far autogenerare la descrizione commerciale all ia
             const btnGenera = document.getElementById('btnGeneraDescrizione');
             if (btnGenera) {
                 btnGenera.addEventListener('click', function() {
                     const titolo  = document.getElementById('titolo_add').value.trim();
                     const formato = document.getElementById('formato_add').value;
 
+                    // se l utente non ha inserito il titolo lo avvisiamo altrimenti l ia non sa di che libro parlare
                     if (!titolo) {
                         alert('Inserisci prima il titolo del libro per generare la descrizione.');
                         document.getElementById('titolo_add').focus();
                         return;
                     }
 
-                    // Mostriamo il loader sull'area testo
+                    // facciamo apparire la schermata di caricamento sopra l area di testo e disabilitiamo il pulsante
                     const loader  = document.getElementById('descrizione-loader');
                     const textarea = document.getElementById('descrizione_add');
                     loader.classList.remove('d-none');
                     loader.style.display = 'flex';
                     btnGenera.disabled = true;
 
+                    // creiamo i dati del form assemblando titolo e formato e chiamiamo genera_descrizione.php
                     const formData = new FormData();
                     formData.append('titolo', titolo);
                     formData.append('formato', formato);
@@ -504,23 +503,26 @@ include __DIR__ . '/../includes/select_prodotti.php';
                         .then(res => res.json())
                         .then(data => {
                             if (data.descrizione) {
+                                // se la descrizione esiste la buttiamo dentro la textarea e facciamo un effetto flash colorato per far capire che è cambiata
                                 textarea.value = data.descrizione;
-                                // Animazione: evidenziamo il campo per far capire che è cambiato
                                 textarea.style.transition = 'background 0.4s';
                                 textarea.style.background = '#fdf2f2';
                                 setTimeout(() => { textarea.style.background = ''; }, 1000);
                             } else {
+                                // se l ia ha fallito avvisiamo con un alert
                                 alert('Errore IA: ' + (data.errore || 'Risposta non valida.'));
                             }
                         })
                         .catch(() => alert('Errore di connessione. Riprova.'))
                         .finally(() => {
+                            // in ogni caso togliamo la schermata di caricamento e riabilitiamo il pulsante
                             loader.classList.add('d-none');
                             loader.style.display = 'none';
                             btnGenera.disabled = false;
                         });
-                }); // fine btnGenera.addEventListener
-            }  // fine if (btnGenera)
+                });
+            }
+
         }); // fine DOMContentLoaded
     </script>
 

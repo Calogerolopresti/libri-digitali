@@ -240,13 +240,12 @@ if (isset($_GET['id'])) {
 
                     <hr class="my-4 text-muted">
                     <div class="text-muted small">
-                        <p class="mb-2"><i class="fa-solid fa-truck text-primary me-2"></i> Spedizione express gratuita per ordini superiori a 29€</p>
                         <p class="mb-0"><i class="fa-solid fa-rotate-left text-primary me-2"></i> Reso gratuito e garantito entro 30 giorni</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Script per Smart Box IA -->
+            <!-- script js per gestire il click sul box dell ia e fare la chiamata fetch -->
             <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const btn = document.getElementById('btnGeneraTrama');
@@ -258,20 +257,25 @@ if (isset($_GET['id'])) {
                         const text = document.getElementById('tramaText');
                         const stile = stileSel ? stileSel.value : 'normale';
                         
+                        // blocchiamo il pulsante subito per evitare click ripetuti se il server ci mette un attimo
                         btn.disabled = true;
+                        // mostriamo l area di testo e facciamo partire il caricamento
                         container.classList.remove('d-none');
                         loader.classList.remove('d-none');
                         text.innerHTML = '';
                         
+                        // facciamo una chiamata fetch passando titolo del libro e lo stile scelto
                         fetch(`genera_trama.php?titolo=<?php echo urlencode($libro['titolo']); ?>&stile=${stile}`)
                             .then(response => response.text())
                             .then(data => {
+                                // nascondiamo il loader magico e scriviamo il testo che ci ha sputato l ia con una bella virgoletta di citazione
                                 loader.classList.add('d-none');
                                 text.innerHTML = '<i class="fa-solid fa-quote-left text-muted me-2" style="opacity: 0.5;"></i>' + data;
                                 btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Trama Generata';
                                 btn.disabled = false;
                             })
                             .catch(error => {
+                                // se cè un errore di rete avvisiamo in rosso e sblocchiamo il pulsante
                                 loader.classList.add('d-none');
                                 text.innerHTML = '<span class="text-danger"><i class="fa-solid fa-circle-exclamation me-1"></i> Si è verificato un errore di connessione.</span>';
                                 btn.disabled = false;

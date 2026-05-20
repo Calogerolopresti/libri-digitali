@@ -263,6 +263,7 @@ $chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
 
 <script>
 (function() {
+    // recuperiamo tutti gli elementi html utili per gestire la chat con l utente
     const toggle      = document.getElementById('chatbot-toggle');
     const toggleIcon  = document.getElementById('chatbot-toggle-icon');
     const chatWindow  = document.getElementById('chatbot-window');
@@ -274,17 +275,20 @@ $chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
     let isOpen        = false;
     let hasNewMessage = false;
 
-    // Percorso verso chatbot.php calcolato lato PHP in base alla profondità della directory
+    // recuperiamo il percorso di chatbot.php generato in php in cima al file
     const base = '<?php echo $chatbot_path; ?>';
 
-    // Apertura / chiusura della finestra chat
+    // funzione per aprire e chiudere la finestrella della chat in modo fluido
     function toggleChat() {
         isOpen = !isOpen;
         chatWindow.classList.toggle('open', isOpen);
+        // cambiamo l iconcina da robot a crocetta in base allo stato
         toggleIcon.className = isOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-robot';
         if (isOpen) {
+            // se apriamo la chat nascondiamo il pallino verde di notifica
             badge.style.display = 'none';
             hasNewMessage = false;
+            // mettiamo il focus sul campo di testo dopo che la finestra si è aperta
             setTimeout(() => input.focus(), 300);
         }
     }
@@ -292,22 +296,23 @@ $chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
     toggle.addEventListener('click', toggleChat);
     closeBtn.addEventListener('click', toggleChat);
 
-    // Scrolla automaticamente in fondo all'area messaggi
+    // scrolliamo sempre la finestrella dei messaggi fino in fondo cosi si legge l ultimo messaggio inserito
     function scrollBottom() {
         messages.scrollTop = messages.scrollHeight;
     }
 
-    // Aggiunge un messaggio alla chat
+    // funzione per buttare dentro la chat un nuovo fumetto (utente o ia)
     function addMessage(text, role) {
         const div = document.createElement('div');
         div.className = 'chat-msg ' + role;
+        // sostituiamo gli a capo testuali con i tag br html
         div.innerHTML = text.replace(/\n/g, '<br>');
         messages.appendChild(div);
         scrollBottom();
         return div;
     }
 
-    // Mostra l'indicatore di digitazione (pallini animati)
+    // creiamo i pallini che saltellano (typing indicator) quando l ia sta elaborando la risposta
     function showTyping() {
         const div = document.createElement('div');
         div.className = 'chat-msg typing';
@@ -317,54 +322,60 @@ $chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
         scrollBottom();
     }
 
-    // Rimuove l'indicatore di digitazione
+    // rimuoviamo il typing indicator prima di mostrare la risposta effettiva di leo
     function hideTyping() {
         const indicator = document.getElementById('typing-indicator');
         if (indicator) indicator.remove();
     }
 
-    // Invio del messaggio
+    // funzione principale per inviare il messaggio dell utente a php via ajax
     function sendMessage() {
         const text = input.value.trim();
+        // se il testo è vuoto o il bottone è disabilitato non facciamo niente
         if (!text || sendBtn.disabled) return;
 
-        // Mostriamo il messaggio dell'utente
+        // aggiungiamo subito il messaggio dell utente alla chat
         addMessage(text, 'user');
         input.value = '';
+        // blocchiamo il pulsante di invio per evitare che l utente clicchi piu volte di fila
         sendBtn.disabled = true;
 
-        // Mostriamo i pallini di attesa
+        // mostriamo i tre pallini di attesa
         showTyping();
 
-        // Chiamata AJAX verso chatbot.php
+        // prepariamo i dati del form da inviare via post a php
         const formData = new FormData();
         formData.append('messaggio', text);
 
+        // facciamo partire la fetch asincrona verso il file php
         fetch(base, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 hideTyping();
                 if (data.risposta) {
                     addMessage(data.risposta, 'ai');
-                    // Se la chat è chiusa, mostriamo il badge verde
+                    // se la chat è chiusa e arriva una risposta accendiamo il pallino verde di notifica sul toggle
                     if (!isOpen) {
                         badge.style.display = 'block';
                     }
                 } else {
+                    // se php ci restituisce un errore lo mostriamo nella chat
                     addMessage('⚠️ ' + (data.errore || 'Errore sconosciuto.'), 'ai');
                 }
             })
             .catch(() => {
                 hideTyping();
+                // errore se non cè connessione a internet o se il server è offline
                 addMessage('⚠️ Errore di connessione. Riprova tra qualche istante.', 'ai');
             })
             .finally(() => {
+                // riabilitiamo il bottone e ridiamo il focus alla tastiera
                 sendBtn.disabled = false;
                 input.focus();
             });
     }
 
-    // Invio con il tasto Enter (Shift+Enter va a capo)
+    // gestiamo l invio premendo il tasto invio da tastiera (senza shift)
     input.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
