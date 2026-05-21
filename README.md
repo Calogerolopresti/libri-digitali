@@ -190,4 +190,4 @@ Il database si basa su cinque tabelle relazionali principali:
 | **Calogero Lo Presti** | PMO + Fullstack Developer + Database | Apertura, architettura DB, backend, AI, chiusura, transazioni e checkout |
 | **Francesca Rinallo** | UX/UI Designer | Design System, palette, componenti CSS, animazioni, layout fluidi |
 | **Antonio Marrone** | Frontend Developer + Pagina di Registrazione | HTML/Bootstrap, componenti frontend, register.php e validazioni |
-| **Agostino Vaccare** | Tester & Bug Reporter | Metodologia di test, bug trovati, fix verificati, QA |
+| **Agostino Vaccaro** | Tester & Bug Reporter | Metodologia di test, bug trovati, fix verificati, QA |

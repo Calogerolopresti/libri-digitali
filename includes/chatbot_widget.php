@@ -5,18 +5,9 @@
      ======================================================== -->
 
 <?php
-// Calcoliamo il percorso assoluto verso chatbot.php 
-// In questo modo funziona correttamente sia dalla root che da /admin/ o /auth/
-$chatbot_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
-    . '://' . $_SERVER['HTTP_HOST']
-    . rtrim(dirname(dirname($_SERVER['PHP_SELF'])), '/admin')
-    . '/libri-digitali/chatbot.php';
-
-// Approccio più semplice: usiamo il path relativo calcolato dalla root del sito
-$script_path = $_SERVER['PHP_SELF'];
-$depth = substr_count(trim($script_path, '/'), '/');
-// Se siamo in una sottocartella (admin/, auth/) usiamo ../chatbot.php, altrimenti chatbot.php
-$chatbot_path = ($depth > 1) ? '../chatbot.php' : 'chatbot.php';
+// Calcoliamo il percorso assoluto verso chatbot.php usando la costante BASE_URL definita in config/db.php
+// In questo modo funziona correttamente da qualsiasi pagina (root, admin, auth, ecc.) indipendentemente dalla struttura delle cartelle o dal web server
+$chatbot_path = defined('BASE_URL') ? BASE_URL . '/chatbot.php' : 'chatbot.php';
 ?>
 
 <style>
