@@ -339,12 +339,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     <div>
                                                         <h6 class="fw-bold mb-1 text-secondary-color mb-0"><?php echo htmlspecialchars($dettaglio['titolo']) ?></h6>
                                                         <?php if ($dettaglio['formato'] == 'fisico'): ?>
-                                                            <span class="badge bg-success small fw-medium">Cartaceo</span>
+                                                            <span class="badge bg-success small fw-medium mb-1 d-inline-block">Cartaceo</span>
                                                         <?php elseif ($dettaglio['formato'] == 'ibrido'): ?>
-                                                            <span class="badge bg-warning text-dark small fw-medium">Ibrido (Cartaceo + eBook)</span>
+                                                            <span class="badge bg-warning text-dark small fw-medium mb-1 d-inline-block">Ibrido (Cartaceo + eBook)</span>
                                                         <?php else : ?>
-                                                            <span class="badge bg-info small fw-medium">eBook</span>
+                                                            <span class="badge bg-info small fw-medium mb-1 d-inline-block">eBook</span>
                                                         <?php endif ?>
+                                                        
+                                                        <?php if ($dettaglio['formato'] == 'digitale' || $dettaglio['formato'] == 'ibrido'): ?>
+                                                            <div class="mt-1">
+                                                                <a href="assets/ebook_demo.pdf" download="<?php echo htmlspecialchars(str_replace(' ', '_', $dettaglio['titolo'])) ?>.pdf" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" style="font-size: 0.75rem;">
+                                                                    <i class="fa-solid fa-download me-1"></i> Scarica PDF
+                                                                </a>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </td>

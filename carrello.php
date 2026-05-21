@@ -28,24 +28,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    $id_utente = $_SESSION['user_id'];
+
     // funzione per aumentare la quantità di una unita 
     if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'aggiungi') {
         $id = htmlspecialchars($_POST['id']);
 
-        // verifichiamo che il prodotto esista effettivamente nel carrello
-        if (isset($_SESSION['carrello'][$id])) {
+        // recuperiamo dal db per verificare la quantita max
+        try {
+            $stmt = $pdo->prepare("SELECT c.quantita, c.formato, p.disponibilita FROM Carrello c JOIN Prodotti p ON c.id_prodotto = p.id WHERE c.id_utente = ? AND c.id = ?");
+            $stmt->execute([$id_utente, $id]);
+            $item = $stmt->fetch();
 
-            $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
-            $quantitaMax = $_SESSION['carrello'][$id]['quantitaMax'];
+            if ($item) {
+                $quantitaAttuale = (int)$item['quantita'];
+                $quantitaMax = ($item['formato'] == 'digitale') ? 1 : (int)$item['disponibilita'];
 
-            // controllo disponibilità
-            if (($quantitaAttuale + 1) <= $quantitaMax) {
-                $_SESSION['carrello'][$id]['quantita']++;
-            } else {
-                // passo l errore tramite get
-                header('Location: carrello.php?errore=' . urlencode('limite_raggiunto'));
-                exit();
+                // controllo disponibilità
+                if (($quantitaAttuale + 1) <= $quantitaMax) {
+                    $stmt_upd = $pdo->prepare("UPDATE Carrello SET quantita = quantita + 1 WHERE id_utente = ? AND id = ?");
+                    $stmt_upd->execute([$id_utente, $id]);
+                } else {
+                    // passo l errore tramite get
+                    header('Location: carrello.php?errore=' . urlencode('limite_raggiunto'));
+                    exit();
+                }
             }
+        } catch (PDOException $e) {
+            error_log("Errore aggiunta carrello: " . $e->getMessage());
         }
 
         header('Location: carrello.php');
@@ -56,19 +66,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'rimuovi') {
         $id = htmlspecialchars($_POST['id']);
 
-        // verifichiamo che il prodotto esista effettivamente nel carrello
-        if (isset($_SESSION['carrello'][$id])) {
+        try {
+            $stmt = $pdo->prepare("SELECT quantita FROM Carrello WHERE id_utente = ? AND id = ?");
+            $stmt->execute([$id_utente, $id]);
+            $item = $stmt->fetch();
 
-            $quantitaAttuale = $_SESSION['carrello'][$id]['quantita'];
+            if ($item) {
+                $quantitaAttuale = (int)$item['quantita'];
 
-            // controllo disponibilità
-            if (($quantitaAttuale - 1) > 0) {
-                $_SESSION['carrello'][$id]['quantita']--;
-            } else {
-                // passo l errore tramite get
-                header('Location: carrello.php?errore=' . urlencode('minimo_raggiunto'));
-                exit();
+                // controllo disponibilità
+                if (($quantitaAttuale - 1) > 0) {
+                    $stmt_upd = $pdo->prepare("UPDATE Carrello SET quantita = quantita - 1 WHERE id_utente = ? AND id = ?");
+                    $stmt_upd->execute([$id_utente, $id]);
+                } else {
+                    // passo l errore tramite get
+                    header('Location: carrello.php?errore=' . urlencode('minimo_raggiunto'));
+                    exit();
+                }
             }
+        } catch (PDOException $e) {
+            error_log("Errore rimozione carrello: " . $e->getMessage());
         }
 
         header('Location: carrello.php');
@@ -79,9 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['id'], $_POST['azione']) && $_POST['azione'] === 'elimina') {
         $id = htmlspecialchars($_POST['id']);
 
-        // verifichiamo che il prodotto esista effettivamente nel carrello
-        if (isset($_SESSION['carrello'][$id])) {
-            unset($_SESSION['carrello'][$id]);
+        try {
+            $stmt_del = $pdo->prepare("DELETE FROM Carrello WHERE id_utente = ? AND id = ?");
+            $stmt_del->execute([$id_utente, $id]);
+        } catch (PDOException $e) {
+            error_log("Errore eliminazione carrello: " . $e->getMessage());
         }
 
         header('Location: carrello.php');
@@ -90,19 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // funzione per l acquisto 
     if (isset($_POST['azione']) && $_POST['azione'] == 'acquista') {
-        if (!empty($_SESSION['carrello'])) {
+        try {
             $id_utente = $_SESSION['user_id'];
-            $carrello = $_SESSION['carrello'];
-            // calcolo il totale ordine 
-            $totale_calcolato = 0;
-            foreach ($carrello as $item) {
-                $totale_calcolato += $item['prezzo'] * $item['quantita'];
-            }
+            // carichiamo gli items
+            $stmt_c = $pdo->prepare("SELECT c.id_prodotto, c.quantita, c.prezzo, c.formato, p.titolo FROM Carrello c JOIN Prodotti p ON c.id_prodotto = p.id WHERE c.id_utente = ?");
+            $stmt_c->execute([$id_utente]);
+            $carrello_items = $stmt_c->fetchAll();
 
-            // Ottieni la data e l'ora corrente
-            $data_ordine = date('Y-m-d H:i:s');
+            if (!empty($carrello_items)) {
+                // calcolo il totale ordine 
+                $totale_calcolato = 0;
+                foreach ($carrello_items as $item) {
+                    $totale_calcolato += $item['prezzo'] * $item['quantita'];
+                }
 
-            try {
+                // Ottieni la data e l'ora corrente
+                $data_ordine = date('Y-m-d H:i:s');
+
                 // iniziamo la transazione con pdo 
                 $pdo->beginTransaction();
                 $sql_ordine = "INSERT INTO Ordini (id_utente, totale_ordine, data_ordine) VALUES (?, ?, ?)";
@@ -119,13 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql_quantita = "UPDATE Prodotti SET disponibilita = disponibilita - :qta1 WHERE id = :id_prod AND formato = 'fisico' AND disponibilita >= :qta2";
                 $stmt_quantita = $pdo->prepare($sql_quantita);
 
-                foreach ($carrello as $id_prodotto => $dati) {
-                    $stmt_dettagli->execute([$id_ordine_creato, $id_prodotto, $dati['quantita'], $dati['prezzo'], $dati['formato']]);
+                foreach ($carrello_items as $dati) {
+                    $stmt_dettagli->execute([$id_ordine_creato, $dati['id_prodotto'], $dati['quantita'], $dati['prezzo'], $dati['formato']]);
                     if ($dati['formato'] === 'fisico' || $dati['formato'] === 'ibrido') {
                         $stmt_quantita->execute([
                             ':qta1'    => $dati['quantita'],
                             ':qta2'    => $dati['quantita'],
-                            ':id_prod' => $id_prodotto
+                            ':id_prod' => $dati['id_prodotto']
                         ]);
                         // se l update fallisce vuol dire che il prodotto è finito e annullo l ordine
                         if ($stmt_quantita->rowCount() == 0) {
@@ -134,22 +157,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+                // svuoto carrello 
+                $stmt_del = $pdo->prepare("DELETE FROM Carrello WHERE id_utente = ?");
+                $stmt_del->execute([$id_utente]);
+
                 $pdo->commit();
-                unset($_SESSION['carrello']);
                 header("Location:carrello.php?successo=1");
                 exit();
-            } catch (PDOException $e) {
-                // Se qualcosa fallisce, PDO annulla tutto
-                if ($pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
-                // salvo l errore nel log senza mostrarlo all utente
-                error_log("errore transazione ordine: " . $e->getMessage());
-                header("Location:carrello.php?errore=" . urlencode('errore_riprovare_piu_tardi'));
-                exit();
             }
+        } catch (PDOException $e) {
+            // Se qualcosa fallisce, PDO annulla tutto
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            // salvo l errore nel log senza mostrarlo all utente
+            error_log("errore transazione ordine: " . $e->getMessage());
+            header("Location:carrello.php?errore=" . urlencode('errore_riprovare_piu_tardi'));
+            exit();
         }
     }
+}
+
+// recupero carrello da db per mostrarlo nell html
+$carrello_db = [];
+try {
+    $stmt_c = $pdo->prepare("
+        SELECT c.id as id_carrello, c.id_prodotto, c.quantita, c.formato, c.prezzo, 
+               p.titolo, p.copertina, p.disponibilita 
+        FROM Carrello c 
+        JOIN Prodotti p ON c.id_prodotto = p.id 
+        WHERE c.id_utente = ?
+    ");
+    $stmt_c->execute([$_SESSION['user_id']]);
+    $items = $stmt_c->fetchAll(PDO::FETCH_ASSOC);
+    
+    // costruiamo array associativo usando id del carrello per non sovrascrivere prodotti uguali con formato diverso
+    foreach($items as $item) {
+        $carrello_db[$item['id_carrello']] = [
+            'id_prodotto' => $item['id_prodotto'],
+            'titolo'    => $item['titolo'],
+            'copertina' => $item['copertina'],
+            'formato'   => $item['formato'],
+            'prezzo'    => $item['prezzo'],
+            'quantita'  => $item['quantita'],
+            'quantitaMax' => ($item['formato'] == 'digitale') ? 1 : $item['disponibilita']
+        ];
+    }
+} catch (PDOException $e) {
+    error_log("Errore caricamento carrello db: " . $e->getMessage());
 }
 ?>
 
@@ -199,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
         <div class="row g-4 align-items-start">
             <!-- Cart Items -->
-            <?php if (!empty($_SESSION['carrello'])): ?>
+            <?php if (!empty($carrello_db)): ?>
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-4 mb-4 p-2">
                         <div class="card-body p-0">
@@ -216,13 +271,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </tr>
                                     </thead>
                                     <tbody class="border-top-0">
-                                        <?php foreach ($_SESSION['carrello'] as $id => $dati):
+                                        <?php foreach ($carrello_db as $id => $dati):
                                             $somma = $somma + ($dati['quantita'] * (float)$dati['prezzo']);
                                         ?>
                                             <tr>
                                                 <td class="ps-4 py-4">
                                                     <div class="d-flex align-items-center">
-                                                        <a href="prodotto.php?id=<?php echo htmlspecialchars($id) ?>">
+                                                        <a href="prodotto.php?id=<?php echo htmlspecialchars($dati['id_prodotto']) ?>">
                                                             <img src="<?php echo htmlspecialchars($dati['copertina']) ?>" alt="Copertina" class="rounded me-3 shadow-sm" style="object-fit: cover;height:120px;">
                                                         </a>
                                                         <div>
@@ -292,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5 class="fw-bold border-bottom pb-3 mb-4 text-secondary-color">Riepilogo Ordine</h5>
 
                             <div class="d-flex justify-content-between mb-3 text-muted">
-                                <span>Subtotale (<?php echo htmlspecialchars(count($_SESSION['carrello'])) ?> articoli)</span>
+                                <span>Subtotale (<?php echo htmlspecialchars(count($carrello_db)) ?> articoli)</span>
                                 <span class="fw-medium">€ <?php echo htmlspecialchars((float)$somma) ?></span>
                             </div>
 
@@ -391,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="mb-4">
                         <i class="fa-solid fa-shield-halved text-success" style="font-size: 3rem;"></i>
                     </div>
-                    <?php if (!empty($_SESSION['carrello'])): ?>
+                    <?php if (!empty($carrello_db)): ?>
                         <h6 class="fw-bold mb-3">Questo è un sito dimostrativo</h6>
                         <p class="text-muted mb-4">Non verranno richiesti o elaborati dati di pagamento reali. Clicca su "Simula Pagamento" per completare l'ordine in modo fittizio.</p>
                         <div class="d-grid gap-2">

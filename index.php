@@ -29,8 +29,18 @@ include 'includes/select_prodotti.php';
 
     <!-- Main Content -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-2" id="catalogo">
-        <div class="mb-4 pb-2 border-bottom">
+        <div class="mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h2 class="fw-bold mb-0 text-secondary-color">Catalogo</h2>
+            <!-- form per la barra di ricerca in php senza usare js -->
+            <form method="GET" action="index.php#catalogo" class="d-flex" style="flex: 1 1 auto; max-width: 400px;">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border border-primary border-opacity-25 bg-white">
+                    <span class="input-group-text border-0 bg-transparent ps-4 pe-2 text-primary">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" name="cerca" class="form-control border-0 px-2 bg-transparent shadow-none" placeholder="Cerca un libro..." value="<?php echo isset($_GET['cerca']) ? htmlspecialchars($_GET['cerca']) : ''; ?>">
+                    <button class="btn btn-primary border-0 px-4 fw-medium" type="submit">Cerca</button>
+                </div>
+            </form>
         </div>
         <!-- se non ce nessun libro mostro che non ci sono libri nel catalogo  -->
         <?php if(count($libri)<=0):?>

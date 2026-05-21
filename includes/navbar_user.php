@@ -15,9 +15,20 @@
                 <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
                     <a href="<?php echo BASE_URL; ?>/carrello.php" class="btn btn-outline-primary nav-btn px-4 position-relative">
                         <i class="fa-solid fa-cart-shopping"></i> Carrello
-                        <?php if(isset($_SESSION['carrello']) && count($_SESSION['carrello'])>0):?>
+                        <?php
+                        $cart_count = 0;
+                        if (isset($_SESSION['user_id'])) {
+                            try {
+                                $stmt_cart = $pdo->prepare("SELECT COUNT(*) FROM Carrello WHERE id_utente = ?");
+                                $stmt_cart->execute([$_SESSION['user_id']]);
+                                $cart_count = (int)$stmt_cart->fetchColumn();
+                            } catch (PDOException $e) {
+                                $cart_count = 0;
+                            }
+                        }
+                        if($cart_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
-                            <?php echo htmlspecialchars(count($_SESSION['carrello']))?>
+                            <?php echo htmlspecialchars($cart_count)?>
                         </span>
                         <?php endif?>
                     </a>

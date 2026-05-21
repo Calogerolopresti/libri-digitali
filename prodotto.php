@@ -44,30 +44,44 @@ if (isset($_GET['id'])) {
                         $quantita = (int)$_POST['quantita'];
                         // controllo che la quantita richiesta sia maggiore di zero per evitare exploit
                         if ($quantita > 0) {
-                            // se la quantita esiste gli assegna il valore se non esiste assegna 0 
-                            $quantitaGiaInCarrello = $_SESSION['carrello'][$id]['quantita'] ?? 0;
+                            $isBundle = (isset($_POST['aggiungi_ebook']) && $_POST['aggiungi_ebook'] == '1' && $libro['formato'] == 'fisico');
+                            $prezzoBase = (float) str_replace(',', '.', $libro['prezzo']);
+                            $prezzoFinale = $isBundle ? ($prezzoBase + 2.00) : $prezzoBase;
+                            $formatoFinale = $isBundle ? 'ibrido' : $libro['formato'];
+                            $id_utente = $_SESSION['user_id'];
+
+                            // verifichiamo quantita gia presente nel database per questo prodotto e utente
+                            $quantitaGiaInCarrello = 0;
+                            try {
+                                $stmt_check = $pdo->prepare("SELECT quantita FROM Carrello WHERE id_utente = ? AND id_prodotto = ? AND formato = ?");
+                                $stmt_check->execute([$id_utente, $id, $formatoFinale]);
+                                $row = $stmt_check->fetch();
+                                if ($row) {
+                                    $quantitaGiaInCarrello = (int)$row['quantita'];
+                                }
+                            } catch (PDOException $e) {
+                                error_log("Errore controllo carrello: " . $e->getMessage());
+                            }
+
                             $quantitaRichiestaTotal = $quantita + $quantitaGiaInCarrello;
 
-                            // controlliamo se la quatita esiste 
+                            // controlliamo se la quantita richiesta è disponibile
                             if ($quantitaRichiestaTotal <= $quantitaMassima) {
-                                // inizzializziamo il carrello se non esiete 
-                                if (!isset($_SESSION['carrello'])) $_SESSION['carrello'] = [];
-                                
-                                // mettiamo tutte le informazioni del prodotto nel carrello con un array associativo 
-                                $isBundle = (isset($_POST['aggiungi_ebook']) && $_POST['aggiungi_ebook'] == '1' && $libro['formato'] == 'fisico');
-                                $prezzoBase = (float) str_replace(',', '.', $libro['prezzo']);
-                                $prezzoFinale = $isBundle ? ($prezzoBase + 2.00) : $prezzoBase;
-                                $formatoFinale = $isBundle ? 'ibrido' : $libro['formato'];
-
-                                $_SESSION['carrello'][$id] = [
-                                    'titolo'    => $libro['titolo'],
-                                    'copertina' => $libro['copertina'],
-                                    'formato'   => $formatoFinale,
-                                    'prezzo'    => number_format($prezzoFinale, 2, '.', ''),
-                                    'quantita'  => $quantitaRichiestaTotal,
-                                    'quantitaMax' => $quantitaMassima
-                                ];
-                                $messaggio = $isBundle ? "Bundle Ibrido (Cartaceo + eBook) aggiunto al carrello!" : "Prodotto aggiunto correttamente al carrello";
+                                try {
+                                    if ($quantitaGiaInCarrello > 0) {
+                                        // se esiste aggiorniamo la quantita
+                                        $stmt_upd = $pdo->prepare("UPDATE Carrello SET quantita = ? WHERE id_utente = ? AND id_prodotto = ? AND formato = ?");
+                                        $stmt_upd->execute([$quantitaRichiestaTotal, $id_utente, $id, $formatoFinale]);
+                                    } else {
+                                        // altrimenti inseriamo il prodotto nel carrello
+                                        $stmt_ins = $pdo->prepare("INSERT INTO Carrello (id_utente, id_prodotto, quantita, formato, prezzo) VALUES (?, ?, ?, ?, ?)");
+                                        $stmt_ins->execute([$id_utente, $id, $quantitaRichiestaTotal, $formatoFinale, $prezzoFinale]);
+                                    }
+                                    $messaggio = $isBundle ? "Bundle Ibrido (Cartaceo + eBook) aggiunto al carrello!" : "Prodotto aggiunto correttamente al carrello";
+                                } catch (PDOException $e) {
+                                    error_log("Errore inserimento carrello: " . $e->getMessage());
+                                    $errore = "Si è verificato un errore tecnico. Riprova più tardi.";
+                                }
                             } else {
                                 // errore se la quantita richiesta è maggiore di quella disponibile 
                                 $errore = "Quantità richiesta non disponibile (Massimo: $quantitaMassima)";
