@@ -269,12 +269,23 @@ $chatbot_path = defined('BASE_URL') ? BASE_URL . '/chatbot.php' : 'chatbot.php';
     // recuperiamo il percorso di chatbot.php generato in php in cima al file
     const base = '<?php echo $chatbot_path; ?>';
 
+    // ripristiniamo lo stato aperto/chiuso dal localStorage se disponibile
+    try {
+        if (localStorage.getItem('ebook-chatbot-open') === 'true') {
+            isOpen = true;
+            chatWindow.classList.add('open');
+            toggleIcon.className = 'fa-solid fa-xmark';
+        }
+    } catch(e) {}
+
     // funzione per aprire e chiudere la finestrella della chat in modo fluido
     function toggleChat() {
         isOpen = !isOpen;
         chatWindow.classList.toggle('open', isOpen);
         // cambiamo l iconcina da robot a crocetta in base allo stato
         toggleIcon.className = isOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-robot';
+        // salviamo lo stato nel localStorage cosi persiste tra le pagine
+        try { localStorage.setItem('ebook-chatbot-open', isOpen ? 'true' : 'false'); } catch(e) {}
         if (isOpen) {
             // se apriamo la chat nascondiamo il pallino verde di notifica
             badge.style.display = 'none';

@@ -50,7 +50,16 @@ include 'includes/select_prodotti.php';
         </div>
         <!-- se non ce nessun libro mostro che non ci sono libri nel catalogo  -->
         <?php if(count($libri)<=0):?>
-            <p>Nessun Libro disponibile</p>
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <h3>Nessun libro trovato</h3>
+                <p>Non abbiamo trovato libri corrispondenti alla tua ricerca.<br>Prova con un termine diverso o rimuovi i filtri.</p>
+                <a href="index.php" class="btn btn-primary px-5 rounded-pill">
+                    <i class="fa-solid fa-rotate-left me-2"></i>Vedi tutto il catalogo
+                </a>
+            </div>
         <?php else:?>    
             <div class="row g-4 mb-5">
                 <?php foreach($libri as $libro):?>
@@ -63,9 +72,19 @@ include 'includes/select_prodotti.php';
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <?php if($libro['formato']=='fisico'):?>
-                                        <span class="badge bg-success mb-3 align-self-start"><i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea</span>
+                                        <span class="badge bg-success mb-3 align-self-start"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Libro fisico spedito a casa">
+                                            <i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea
+                                        </span>
                                     <?php else:?>
-                                        <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
+                                        <span class="badge bg-info mb-3 align-self-start"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Scaricabile subito in formato PDF">
+                                            <i class="fa-solid fa-download me-1"></i> Edizione Digitale
+                                        </span>
                                     <?php endif?>    
                                     <h5 class="card-title"><?php echo htmlspecialchars($libro['titolo'])?></h5>
                                     <div class="mt-auto d-flex justify-content-between align-items-center">

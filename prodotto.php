@@ -122,6 +122,14 @@ if (isset($_GET['id'])) {
 
     <!-- Product Detail -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
+        <!-- breadcrumb navigazione -->
+        <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>/index<?php echo (isset($_SESSION['ruolo']) && $_SESSION['ruolo']==='user') ? '-logged' : ''; ?>.php"><i class="fa-solid fa-house fa-xs me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>/index<?php echo (isset($_SESSION['ruolo']) && $_SESSION['ruolo']==='user') ? '-logged' : ''; ?>.php#catalogo">Catalogo</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><?php echo $libro ? htmlspecialchars(mb_strimwidth($libro['titolo'], 0, 40, '...')) : 'Prodotto'; ?></li>
+            </ol>
+        </nav>
         <?php if (!empty($messaggio)): ?>
             <div class="alert alert-success">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -155,9 +163,17 @@ if (isset($_GET['id'])) {
                 <!-- Right Column: Details -->
                 <div class="col-md-7">
                     <?php if ($libro['formato'] == 'fisico'): ?>
-                        <span class="badge bg-success mb-3 px-3 py-2"><i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea</span>
+                        <span class="badge bg-success mb-3 px-3 py-2"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Libro fisico spedito a casa">
+                            <i class="fa-solid fa-book-open me-1"></i> Edizione Cartacea
+                        </span>
                     <?php else: ?>
-                        <span class="badge bg-info mb-3 align-self-start"><i class="fa-solid fa-download me-1"></i> Edizione Digitale</span>
+                        <span class="badge bg-info mb-3 align-self-start"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Scaricabile subito in formato PDF">
+                            <i class="fa-solid fa-download me-1"></i> Edizione Digitale
+                        </span>
                     <?php endif ?>
                     <h1 class="fw-bold text-secondary-color mb-2"><?php echo htmlspecialchars($libro['titolo']) ?></h1>
 

@@ -1,21 +1,26 @@
-    <!-- Navbar Sticky -->
+    <!-- Navbar fissa in cima alla pagina, visibile agli utenti loggati -->
     <nav class="navbar navbar-expand-lg fixed-top shadow-sm">
         <div class="container">
+            <!-- logo con immagine favicon + nome del sito -->
             <a class="navbar-brand d-flex align-items-center" href="<?php echo BASE_URL; ?>/index-logged.php">
-                <i class="fa-solid fa-book-open me-2 text-primary"></i>
-                E-Book & Co. 
+                <img src="<?php echo BASE_URL; ?>/assets/img/favicon.png" alt="Logo" class="navbar-logo">
+                E-Book &amp; Co.
             </a>
+            <!-- toggler per il menu mobile -->
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <!-- Eventuali link generici qui -->
+                    <!-- eventuali link generici qui -->
                 </ul>
+                <!-- azioni utente: carrello con badge, profilo, logout -->
                 <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                    <!-- link al carrello con contatore degli articoli al suo interno -->
                     <a href="<?php echo BASE_URL; ?>/carrello.php" class="btn btn-outline-primary nav-btn px-4 position-relative">
                         <i class="fa-solid fa-cart-shopping"></i> Carrello
                         <?php
+                        // contiamo quanti prodotti distinti ci sono nel carrello dell utente
                         $cart_count = 0;
                         if (isset($_SESSION['user_id'])) {
                             try {
@@ -26,6 +31,7 @@
                                 $cart_count = 0;
                             }
                         }
+                        // mostriamo il badge rosso solo se il carrello ha almeno un prodotto
                         if($cart_count > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
                             <?php echo htmlspecialchars($cart_count)?>

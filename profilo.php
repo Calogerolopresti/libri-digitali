@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4"><i class="fa-solid fa-box-open text-primary me-2"></i> Storico Ordini</h5>
-                        <div class="table-responsive">
+                        <div class="table-responsive table-wrapper">
                             <!-- verifichiamo se l array esiste o è vuoto per mostrare la tabella o dire nessun ordine disponibile  -->
                             <?php if (!isset($ordini) || empty($ordini)): ?>
                                 <p>Nessun ordine da mostrare, continua a fare shopping</p>
@@ -298,12 +298,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- MODALE DETTAGLI ORDINE (Con Logica PHP e Base Statica) -->
-    <div class="modal fade <?php echo $showOrderDetail ? 'show' : ''; ?>"
+    <!-- MODALE DETTAGLI ORDINE -->
+    <div class="modal fade"
         id="orderDetailModal"
         tabindex="-1"
-        style="<?php echo $showOrderDetail ? 'display: block; background: rgba(0,0,0,0.5);' : ''; ?>"
-        aria-hidden="<?php echo $showOrderDetail ? 'false' : 'true'; ?>"
+        aria-hidden="true"
         role="dialog">
 
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -316,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="<?php echo htmlspecialchars(strtok($_SERVER["REQUEST_URI"], '?')); ?>" class="btn-close shadow-none align-self-start"></a>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-wrapper">
                         <!-- verifichiamo se l array esiste o è vuoto per mostrare la tabella o dire nessun ordine disponibile  -->
                         <?php if (!isset($ordini_dettagli) || empty($ordini_dettagli)): ?>
                             <p>Impossibile mostrare i dettagli di questo ordine al momento, Riprova piu tardi</p>
@@ -373,11 +372,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0 pb-4 px-4">
-                    <a href="<?php echo htmlspecialchars(strtok($_SERVER["REQUEST_URI"], '?')); ?>" class="btn btn-outline-secondary rounded-pill px-4">Chiudi</a>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Chiudi</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Script per aprire in automatico la modale -->
+    <?php if ($showOrderDetail): ?>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+                myModal.show();
+                
+                document.getElementById('orderDetailModal').addEventListener('hidden.bs.modal', function () {
+                    const newUrl = window.location.pathname;
+                    window.history.replaceState({}, document.title, newUrl);
+                });
+            });
+        </script>
+    <?php endif; ?>
     <?php include __DIR__ . '/includes/footer.php'; ?>
 </body>

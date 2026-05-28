@@ -231,6 +231,14 @@ try {
 
     <!-- Cart Content -->
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-1 mt-5">
+        <!-- breadcrumb navigazione -->
+        <nav aria-label="breadcrumb" class="breadcrumb-wrapper">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>/index-logged.php"><i class="fa-solid fa-house fa-xs me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a href="<?php echo BASE_URL; ?>/index-logged.php#catalogo">Catalogo</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Carrello</li>
+            </ol>
+        </nav>
         <h2 class="fw-bold text-secondary-color mb-4"><i class="fa-solid fa-cart-shopping me-2 text-primary"></i> Il tuo Carrello</h2>
         <?php if (isset($_GET['errore'])): ?>
             <div class="alert alert-error">
@@ -258,7 +266,7 @@ try {
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-4 mb-4 p-2">
                         <div class="card-body p-0">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-wrapper">
 
                                 <table class="table table-custom align-middle mb-0">
                                     <thead class="table-light">

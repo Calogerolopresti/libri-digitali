@@ -112,7 +112,7 @@ include __DIR__ . '/../includes/select_prodotti.php';
         <?php else: ?>
             <div class="card border-0 shadow-sm rounded-4 p-2">
                 <div class="card-body p-0">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-wrapper">
                         <table class="table table-hover align-middle mb-0 border-0">
                             <thead class="table-light">
                                 <tr>

@@ -203,7 +203,7 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'mostra' && isset($_GET['id_ord
                                 <h6 class="fw-bold text-muted mb-0">Il cliente non ha ancora effettuato alcun ordine.</h6>
                             </div>
                         <?php else: ?>
-                            <div class="table-responsive">
+                            <div class="table-responsive table-wrapper">
                                 <table class="table table-hover align-middle mb-0 border-0">
                                     <thead class="table-light border-bottom">
                                         <tr>
@@ -249,7 +249,7 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'mostra' && isset($_GET['id_ord
                     <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="table-responsive mt-2">
+                    <div class="table-responsive table-wrapper mt-2">
                         <table class="table align-middle table-hover border-0">
                             <thead class="table-light">
                                 <tr>
