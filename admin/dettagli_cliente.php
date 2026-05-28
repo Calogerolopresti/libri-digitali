@@ -207,10 +207,10 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'mostra' && isset($_GET['id_ord
                                 <table class="table table-hover align-middle mb-0 border-0">
                                     <thead class="table-light border-bottom">
                                         <tr>
-                                            <th class="ps-4 text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">ID Ordine</th>
-                                            <th class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Data</th>
-                                            <th class="text-end text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Totale</th>
-                                            <th class="text-center pe-4 text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Azione</th>
+                                            <th class="ps-4 text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">ID Ordine</th>
+                                            <th class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Data</th>
+                                            <th class="text-end text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Totale</th>
+                                            <th class="text-center pe-4 text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Azione</th>
                                         </tr>
                                     </thead>
                                     <tbody class="border-top-0">
@@ -222,7 +222,7 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'mostra' && isset($_GET['id_ord
                                                 <td class="text-end py-3 fw-bold text-primary">€ <?php echo number_format($ordine['totale_ordine'], 2, ',', '.') ?></td>
                                                 <td class="text-center py-3 pe-4">
                                                     <!-- tasto che ricarica la pagina passando l id ordine in GET per aprire la modale -->
-                                                    <a href="dettagli_cliente.php?id=<?php echo htmlspecialchars($id_cliente) ?>&azione=mostra&id_ordine=<?php echo htmlspecialchars($ordine['id']) ?>" class="btn btn-sm btn-light text-primary shadow-sm rounded-pill px-3 py-1 fw-medium" style="font-size: 0.85rem;">
+                                                    <a href="dettagli_cliente.php?id=<?php echo htmlspecialchars($id_cliente) ?>&azione=mostra&id_ordine=<?php echo htmlspecialchars($ordine['id']) ?>" class="btn btn-sm btn-light text-primary shadow-sm rounded-pill px-3 py-1 fw-medium text-xs">
                                                         <i class="fa-regular fa-eye me-1"></i> Dettagli
                                                     </a>
                                                 </td>
@@ -253,9 +253,9 @@ if (isset($_GET['azione']) && $_GET['azione'] == 'mostra' && isset($_GET['id_ord
                         <table class="table align-middle table-hover border-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-4 border-0 text-muted fw-bold" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Libro</th>
-                                    <th class="border-0 text-muted fw-bold text-center" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Qtà</th>
-                                    <th class="border-0 text-muted fw-bold text-end pe-4" style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Prezzo</th>
+                                    <th class="ps-4 border-0 text-muted fw-bold text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Libro</th>
+                                    <th class="border-0 text-muted fw-bold text-center text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Qtà</th>
+                                    <th class="border-0 text-muted fw-bold text-end pe-4 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Prezzo</th>
                                 </tr>
                             </thead>
                             <tbody class="border-top-0">

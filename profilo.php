@@ -347,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         
                                                         <?php if ($dettaglio['formato'] == 'digitale' || $dettaglio['formato'] == 'ibrido'): ?>
                                                             <div class="mt-1">
-                                                                <a href="assets/ebook_demo.pdf" download="<?php echo htmlspecialchars(str_replace(' ', '_', $dettaglio['titolo'])) ?>.pdf" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" style="font-size: 0.75rem;">
+                                                                <a href="assets/ebook_demo.pdf" download="<?php echo htmlspecialchars(str_replace(' ', '_', $dettaglio['titolo'])) ?>.pdf" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm text-xs">
                                                                     <i class="fa-solid fa-download me-1"></i> Scarica PDF
                                                                 </a>
                                                             </div>

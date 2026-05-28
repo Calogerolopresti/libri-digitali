@@ -279,12 +279,14 @@ try {
                                         </tr>
                                     </thead>
                                     <tbody class="border-top-0">
+                                        <!-- ciclo su tutti i prodotti nel carrello per stamparli in tabella -->
                                         <?php foreach ($carrello_db as $id => $dati):
                                             $somma = $somma + ($dati['quantita'] * (float)$dati['prezzo']);
                                         ?>
                                             <tr>
                                                 <td class="ps-4 py-4">
                                                     <div class="d-flex align-items-center">
+                                                        <!-- copertina cliccabile per andare alla pagina prodotto -->
                                                         <a href="prodotto.php?id=<?php echo htmlspecialchars($dati['id_prodotto']) ?>">
                                                             <img src="<?php echo htmlspecialchars($dati['copertina']) ?>" alt="Copertina" class="rounded me-3 shadow-sm" style="object-fit: cover;height:120px;">
                                                         </a>
@@ -292,6 +294,7 @@ try {
                                                             <h6 class="fw-bold mb-1 text-secondary-color">
                                                                 <?php echo htmlspecialchars($dati['titolo']) ?>
                                                             </h6>
+                                                            <!-- mostro un badge diverso a seconda del formato del libro -->
                                                             <?php if ($dati['formato'] == 'fisico'): ?>
                                                                 <span class="badge bg-success small fw-medium">Cartaceo</span>
                                                             <?php elseif ($dati['formato'] == 'ibrido'): ?>
@@ -304,13 +307,17 @@ try {
                                                 </td>
                                                 <td class="text-muted fw-medium">€ <?php echo htmlspecialchars($dati['prezzo']); ?></td>
                                                 <td>
+                                                    <!-- selettore per modificare le quantita del prodotto -->
                                                     <div class="qty-selector d-inline-flex align-items-center" style="border:none!important;background-color:transparent!important;">
+                                                        <!-- form per diminuire la quantita di un pezzo -->
                                                         <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
                                                             <input type="hidden" name="azione" value="rimuovi">
-                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
+                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-minus text-xs"></i></button>
                                                         </form>
+                                                        
+                                                        <!-- campo visivo readonly con la quantita attuale -->
                                                         <input type="number"
                                                             class="form-control text-center qty-input hide-spinners px-1"
                                                             name="quantita"
@@ -318,22 +325,25 @@ try {
                                                             min="1"
                                                             max="<?php echo htmlspecialchars(($dati['formato'] == 'digitale') ? 1 : $dati['quantitaMax']); ?>"
                                                             readonly>
+                                                            
+                                                        <!-- form per aumentare la quantita di un pezzo -->
                                                         <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
                                                             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
                                                             <input type="hidden" name="azione" value="aggiungi">
-                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
+                                                            <button class="btn qty-btn shadow-sm" type="submit"><i class="fa-solid fa-plus text-xs"></i></button>
                                                         </form>
                                                     </div>
                                                 </td>
                                                 <?php (float)$totale = $dati['quantita'] * (float)$dati['prezzo']; ?>
                                                 <td class="text-end fw-bold text-primary">€ <?php echo htmlspecialchars((float)$totale) ?></td>
+                                                <!-- form per eliminare del tutto il prodotto dal carrello -->
                                                 <td class="text-center pe-4">
                                                     <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="m-0 p-0">
                                                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                         <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
                                                         <input type="hidden" name="azione" value="elimina">
-                                                        <button class="btn btn-outline-danger btn-round-perfect shadow-sm border-0" title="Rimuovi" type="submit"><i class="fa-solid fa-trash-can"></i></button>
+                                                        <button class="btn btn-outline-danger btn-round-perfect shadow-sm border-0" title="Rimuovi prodotto" type="submit" data-bs-toggle="tooltip"><i class="fa-solid fa-trash-can"></i></button>
                                                     </form>
                                                 </td>
                                             </tr>
@@ -378,67 +388,23 @@ try {
                 </div>
         </div>
     <?php else: ?>
-        <div style="
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    padding: 80px 20px; 
-    text-align: center; 
-    background-color: #fff5f5; /* Sfondo con una punta di rosa/crema */
-    border: 2px solid #f2d7d7; 
-    border-radius: 20px; 
-    max-width: 800px; 
-    margin: 40px auto; 
-    box-shadow: 0 10px 30px rgba(139, 0, 0, 0.05);
-    font-family: 'Georgia', serif;
-">
-    <div style="max-width: 500px;">
-        <!-- Icona Libro Aperto in Rosso Borgogna -->
-        <div style="margin-bottom: 25px; color: #a31d1d;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
+        <div class="card border-0 book-card p-5 text-center mx-auto mt-4" style="max-width: 600px;">
+            <div class="card-body py-5">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle" style="width: 100px; height: 100px;">
+                        <i class="fa-solid fa-cart-arrow-down" style="font-size: 2.5rem;"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-secondary-color mb-3">Il tuo carrello è vuoto</h3>
+                <p class="text-muted mb-4 fs-5" style="line-height: 1.6;">
+                    Non hai ancora aggiunto alcun libro al tuo carrello.<br>
+                    Esplora il nostro catalogo e trova la tua prossima lettura!
+                </p>
+                <a href="<?php echo BASE_URL; ?>/index-logged.php#catalogo" class="btn btn-primary btn-lg shadow-sm px-5 rounded-pill">
+                    <i class="fa-solid fa-book-open me-2"></i> Esplora il Catalogo
+                </a>
+            </div>
         </div>
-
-        <h2 style="
-            color: #5a0c0c; 
-            font-size: 2.2rem; 
-            margin-bottom: 15px; 
-            font-weight: normal;
-        ">
-            Pagine che aspettano solo te
-        </h2>
-
-        <p style="
-            color: #7a4a4a; 
-            font-size: 1.1rem; 
-            line-height: 1.8; 
-            margin-bottom: 35px;
-            font-style: italic;
-        ">
-            Il tuo carrello è ancora una pagina bianca. <br>
-            Lasciati ispirare dai nostri racconti e riempi il tuo mondo di nuove emozioni.
-        </p>
-
-        <a href="index-logged.php" style="
-            display: inline-block; 
-            padding: 15px 40px; 
-            background-color: #a31d1d; /* Rosso scuro elegante */
-            color: #ffffff; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-size: 1rem; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(163, 29, 29, 0.3);
-            font-family: sans-serif;
-        ">
-            Esplora il Catalogo
-        </a>
-    </div>
-</div>
     <?php endif ?>
     </main>
 
@@ -473,10 +439,13 @@ try {
                             <i class="fa-solid fa-circle-check me-2"></i>Pagamento simulato con successo! Ritorno alla home...
                         </div>
                     <?php else: ?>
+                        <div class="mb-4">
+                            <i class="fa-solid fa-cart-arrow-down text-muted" style="font-size: 3rem;"></i>
+                        </div>
                         <h6 class="fw-bold mb-3">Carrello Vuoto</h6>
-                        <p class="text-muted mb-4">Impossibile fare pagameto perchè il carrello è vuoto, inserisci qualche prodotto prima.</p>
+                        <p class="text-muted mb-4">Non è possibile procedere al checkout perché il tuo carrello è vuoto. Aggiungi qualche prodotto per continuare.</p>
                         <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-light py-2 rounded-pill fw-medium" data-bs-dismiss="modal">Annulla</button>
+                            <button type="button" class="btn btn-light py-2 rounded-pill fw-medium" data-bs-dismiss="modal">Chiudi</button>
                         </div>
                     <?php endif ?>
 

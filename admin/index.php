@@ -100,14 +100,17 @@ include __DIR__ . '/../includes/select_prodotti.php';
 
         <!-- Tabella Prodotti -->
         <?php if (empty($libri) || !isset($libri)): ?>
-            <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 bg-white">
-                <div class="card-body">
-                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                        <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 2rem;"></i>
+            <div class="card border-0 bg-transparent shadow-none text-center py-5 mt-4">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-white shadow-sm text-muted rounded-circle" style="width: 100px; height: 100px;">
+                        <i class="fa-solid fa-book-open-reader fs-1"></i>
                     </div>
-                    <h4 class="fw-bold text-secondary-color mb-2">Nessun libro trovato</h4>
-                    <p class="text-muted mb-0">Non ci sono libri disponibili nel catalogo o corrispondenti alla tua ricerca.</p>
                 </div>
+                <h4 class="fw-bold text-secondary-color mb-2">Catalogo Vuoto</h4>
+                <p class="text-muted fs-5 mb-4">Non ci sono libri nel database. Aggiungi il tuo primo libro!</p>
+                <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="fa-solid fa-plus me-2"></i> Aggiungi Libro
+                </button>
             </div>
         <?php else: ?>
             <div class="card border-0 shadow-sm rounded-4 p-2">
@@ -116,12 +119,12 @@ include __DIR__ . '/../includes/select_prodotti.php';
                         <table class="table table-hover align-middle mb-0 border-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col" class="ps-4 text-muted fw-bold rounded-start border-bottom-0" style="width: 90px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Copertina</th>
-                                    <th scope="col" class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Titolo</th>
-                                    <th scope="col" class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Prezzo</th>
-                                    <th scope="col" class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Formato</th>
-                                    <th scope="col" class="text-muted fw-bold text-center border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Stock</th>
-                                    <th scope="col" class="text-center pe-4 text-muted fw-bold rounded-end border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;">Azioni</th>
+                                    <th scope="col" class="ps-4 text-muted fw-bold rounded-start border-bottom-0 text-xs" style="width: 90px; text-transform: uppercase; letter-spacing: 0.5px;">Copertina</th>
+                                    <th scope="col" class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px;">Titolo</th>
+                                    <th scope="col" class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px;">Prezzo</th>
+                                    <th scope="col" class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px;">Formato</th>
+                                    <th scope="col" class="text-muted fw-bold text-center border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px;">Stock</th>
+                                    <th scope="col" class="text-center pe-4 text-muted fw-bold rounded-end border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px;">Azioni</th>
                                 </tr>
                             </thead>
                             <tbody class="border-top-0">
@@ -142,14 +145,14 @@ include __DIR__ . '/../includes/select_prodotti.php';
                                         <!-- mostro la tipoligia in base al formato  -->
                                         <td>
                                             <?php if ($libro['formato'] == 'fisico'): ?>
-                                                <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
-                                                    style="background-color: #a31d1d; color: white; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #7a0c0c;">
-                                                    <i class="bi bi-book-fill"></i> CARTACEO
+                                                <span class="badge rounded-pill fw-medium text-xs" 
+                                                    style="background-color: #a31d1d; color: white; padding: 6px 14px; border: 1px solid #7a0c0c;">
+                                                    CARTACEO
                                                 </span>
                                             <?php else: ?>
-                                                <span class="badge rounded-pill d-inline-flex align-items-center gap-2"
-                                                    style="background-color: #fdf2f2; color: #a31d1d; padding: 6px 14px; font-size: 0.75rem; border: 1px solid #f2d7d7;">
-                                                    <i class="bi bi-phone-vibrate"></i> E-BOOK
+                                                <span class="badge rounded-pill fw-medium text-xs" 
+                                                    style="background-color: #fdf2f2; color: #a31d1d; padding: 6px 14px; border: 1px solid #f2d7d7;">
+                                                    E-BOOK
                                                 </span>
                                             <?php endif; ?>
                                         </td>
@@ -177,7 +180,7 @@ include __DIR__ . '/../includes/select_prodotti.php';
                                                 data-descrizione="<?= htmlspecialchars($libro['descrizione']) ?>"
                                                 style="width: 38px; height: 38px; transition: all 0.2s;"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#editProductModal" title="Modifica">
+                                                data-bs-target="#editProductModal" title="Modifica Libro" data-bs-toggle="tooltip">
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
 
@@ -185,7 +188,7 @@ include __DIR__ . '/../includes/select_prodotti.php';
                                             <form method="POST" action="elimina.php" class="d-inline m-0 p-0" onsubmit="return confirm('Vuoi davvero eliminare questo libro?')">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                 <input type="hidden" name="id" value="<?= htmlspecialchars($libro['id']) ?>">
-                                                <button type="submit" class="btn btn-sm btn-light text-danger shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 38px; height: 38px; transition: all 0.2s;" title="Elimina">
+                                                <button type="submit" class="btn btn-sm btn-light text-danger shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 38px; height: 38px; transition: all 0.2s;" title="Elimina Libro" data-bs-toggle="tooltip">
                                                     <i class="fa-solid fa-trash-can"></i>
                                                 </button>
                                             </form>

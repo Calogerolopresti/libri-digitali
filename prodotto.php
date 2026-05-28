@@ -215,7 +215,7 @@ if (isset($_GET['id'])) {
                                 </div>
                                 <span class="text-primary small fw-medium">Elaborazione magica in corso...</span>
                             </div>
-                            <div id="tramaText" class="text-secondary-color" style="font-size: 0.95rem; line-height: 1.6;"></div>
+                            <div id="tramaText" class="text-secondary-color text-sm" style="line-height: 1.6;"></div>
                         </div>
                     </div>
                     <!-- Fine Smart Box IA -->
@@ -248,13 +248,13 @@ if (isset($_GET['id'])) {
                                 <div class="qty-selector d-flex align-items-center">
                                     <?php if ($libro['formato'] == 'digitale'): ?>
                                         <!-- se il formato è digitale imposto come limite massimo 1  -->
-                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
+                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus text-xs"></i></button>
                                         <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" name="quantita" value="1" min="1" max="1">
-                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
+                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus text-xs"></i></button>
                                     <?php else: ?>
-                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus" style="font-size: 0.75rem;"></i></button>
+                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepDown()"><i class="fa-solid fa-minus text-xs"></i></button>
                                         <input type="number" class="form-control text-center qty-input hide-spinners px-1" id="quantita" name="quantita" value="1" min="1" max="<?php echo htmlspecialchars($libro['disponibilita']) ?>">
-                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus" style="font-size: 0.75rem;"></i></button>
+                                        <button class="btn qty-btn shadow-sm" type="button" onclick="document.getElementById('quantita').stepUp()"><i class="fa-solid fa-plus text-xs"></i></button>
                                     <?php endif ?>
                                 </div>
                             </div>

@@ -25,7 +25,7 @@
                     </li>
                 </ul>
                 <!-- pulsante per uscire dal pannello e tornare al sito pubblico -->
-                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mt-3 mt-lg-0 pb-3 pb-lg-0">
                     <a href="<?php echo BASE_URL; ?>/index.php" class="btn btn-outline-secondary nav-btn px-4 border-0">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i> Esci dal Pannello
                     </a>

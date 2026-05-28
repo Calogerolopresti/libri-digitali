@@ -15,7 +15,7 @@
                     <!-- eventuali link generici qui -->
                 </ul>
                 <!-- azioni utente: carrello con badge, profilo, logout -->
-                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mt-3 mt-lg-0 pb-3 pb-lg-0">
                     <!-- link al carrello con contatore degli articoli al suo interno -->
                     <a href="<?php echo BASE_URL; ?>/carrello.php" class="btn btn-outline-primary nav-btn px-4 position-relative">
                         <i class="fa-solid fa-cart-shopping"></i> Carrello

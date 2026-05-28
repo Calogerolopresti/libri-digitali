@@ -101,11 +101,11 @@ try {
                         <table class="table table-hover align-middle mb-0 border-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th scope="col" class="ps-4 text-muted fw-bold rounded-start border-bottom-0" style="width: 80px; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">ID</th>
-                                    <th scope="col" class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Nome Completo</th>
-                                    <th scope="col" class="text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Email</th>
-                                    <th scope="col" class="text-center text-muted fw-bold border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Ruolo</th>
-                                    <th scope="col" class="text-center pe-4 text-muted fw-bold rounded-end border-bottom-0" style="text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Azioni</th>
+                                    <th scope="col" class="ps-4 text-muted fw-bold rounded-start border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">ID</th>
+                                    <th scope="col" class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Nome Completo</th>
+                                    <th scope="col" class="text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Email</th>
+                                    <th scope="col" class="text-center text-muted fw-bold border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Ruolo</th>
+                                    <th scope="col" class="text-center pe-4 text-muted fw-bold rounded-end border-bottom-0 text-xs" style="text-transform: uppercase; letter-spacing: 0.5px; padding-top: 1rem; padding-bottom: 1rem;">Azioni</th>
                                 </tr>
                             </thead>
                             <tbody class="border-top-0">
@@ -115,7 +115,7 @@ try {
                                         <td class="ps-4 py-4 fw-medium text-secondary">#<?php echo htmlspecialchars($cliente['id']) ?></td>
                                         <td>
                                             <div class="d-flex align-items-center gap-3">
-                                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px; font-size: 1.2rem;">
+                                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 45px; height: 45px;">
                                                     <i class="fa-regular fa-user"></i>
                                                 </div>
                                                 <h6 class="fw-bold mb-0 text-secondary-color">
@@ -130,7 +130,7 @@ try {
                                             </span>
                                         </td>
                                         <td class="text-center pe-4">
-                                            <a href="dettagli_cliente.php?id=<?php echo htmlspecialchars($cliente['id']) ?>" class="btn btn-sm btn-light text-primary shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 38px; height: 38px; transition: all 0.2s;" title="Vedi Dettagli e Ordini">
+                                            <a href="dettagli_cliente.php?id=<?php echo htmlspecialchars($cliente['id']) ?>" class="btn btn-sm btn-light text-primary shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 38px; height: 38px; transition: all 0.2s;" title="Vedi Dettagli e Ordini" data-bs-toggle="tooltip">
                                                 <i class="fa-regular fa-eye"></i>
                                             </a>
                                             <!-- pulsante elimina passato come form per evitare csrf -->

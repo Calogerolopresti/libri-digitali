@@ -15,7 +15,7 @@
                     <!-- eventuali link generici qui -->
                 </ul>
                 <!-- pulsanti di accesso / registrazione allineati a destra -->
-                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mt-3 mt-lg-0 pb-3 pb-lg-0">
                     <a href="<?php echo BASE_URL; ?>/auth/login.php" class="btn btn-outline-primary nav-btn px-4">
                         <i class="fa-solid fa-arrow-right-to-bracket"></i> Accedi
                     </a>
