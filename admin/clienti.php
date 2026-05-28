@@ -65,6 +65,24 @@ try {
             </h2>
         </div>
 
+        <?php if (isset($_GET['successo_delete'])): ?>
+            <div class="alert alert-success border-0 shadow-sm rounded-4 d-flex align-items-center mb-4 px-4 py-3" role="alert">
+                <i class="fa-solid fa-circle-check fs-4 me-3 text-success"></i>
+                <div>
+                    <strong>Eliminazione completata:</strong> Il cliente è stato eliminato con successo.
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($_GET['errore_delete'])): ?>
+            <div class="alert alert-danger border-0 shadow-sm rounded-4 d-flex align-items-center mb-4 px-4 py-3" role="alert">
+                <i class="fa-solid fa-triangle-exclamation fs-4 me-3 text-danger"></i>
+                <div>
+                    <strong>Errore di eliminazione:</strong> Si è verificato un problema durante la rimozione del cliente.
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- Tabella Clienti -->
         <?php if (empty($clienti) || !isset($clienti)): ?>
             <div class="card border-0 shadow-sm rounded-4 p-5 text-center my-4 bg-white">
@@ -115,6 +133,14 @@ try {
                                             <a href="dettagli_cliente.php?id=<?php echo htmlspecialchars($cliente['id']) ?>" class="btn btn-sm btn-light text-primary shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" style="width: 38px; height: 38px; transition: all 0.2s;" title="Vedi Dettagli e Ordini">
                                                 <i class="fa-regular fa-eye"></i>
                                             </a>
+                                            <!-- pulsante elimina passato come form per evitare csrf -->
+                                            <form method="POST" action="elimina_cliente.php" class="d-inline m-0 p-0" onsubmit="return confirm('Vuoi davvero eliminare questo cliente?')">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars($cliente['id']) ?>">
+                                                <button type="submit" class="btn btn-sm btn-light text-danger shadow-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0 ms-1" style="width: 38px; height: 38px; transition: all 0.2s;" title="Elimina Cliente">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>
