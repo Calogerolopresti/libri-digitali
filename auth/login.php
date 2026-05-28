@@ -16,7 +16,6 @@ if(!isset($_SESSION['csrf_token'])){
 
 // se inviano il form in pagina con method post entrano nell if 
 if($_SERVER['REQUEST_METHOD']==='POST'){
-
     // verifico che il token csrf sia valido prima di fare qualsiasi cosa
     if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']){
         $errore = "Richiesta non valida, riprova.";

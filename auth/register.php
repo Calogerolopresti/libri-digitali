@@ -142,7 +142,6 @@ function escape(string $value): string {
 // vecchi input da ripopolare nei campi del form
 $previous_name = escape($previous_input['name'] ?? '');
 $previous_email = escape($previous_input['email'] ?? '');
-
 // messaggi di errore per ogni campo
 $name_error_message = escape($errors['name'] ?? '');
 $email_error_message = escape($errors['email'] ?? '');

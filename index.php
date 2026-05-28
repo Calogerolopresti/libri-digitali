@@ -31,13 +31,19 @@ include 'includes/select_prodotti.php';
     <main class="container mb-5 flex-grow-1 fade-in fade-in-delay-2" id="catalogo">
         <div class="mb-4 pb-2 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h2 class="fw-bold mb-0 text-secondary-color">Catalogo</h2>
-            <!-- form per la barra di ricerca in php senza usare js -->
-            <form method="GET" action="index.php#catalogo" class="d-flex" style="flex: 1 1 auto; max-width: 400px;">
+            <!-- form per la barra di ricerca in php senza usare js con filtro per formato -->
+            <form method="GET" action="index.php#catalogo" class="d-flex" style="flex: 1 1 auto; max-width: 500px;">
                 <div class="input-group shadow-sm rounded-pill overflow-hidden border border-primary border-opacity-25 bg-white">
                     <span class="input-group-text border-0 bg-transparent ps-4 pe-2 text-primary">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </span>
                     <input type="text" name="cerca" class="form-control border-0 px-2 bg-transparent shadow-none" placeholder="Cerca un libro..." value="<?php echo isset($_GET['cerca']) ? htmlspecialchars($_GET['cerca']) : ''; ?>">
+                    <!-- select per scegliere il formato del libro -->
+                    <select name="formato" class="form-select border-0 px-2 bg-transparent shadow-none text-muted" style="max-width: 140px; border-left: 1px solid rgba(0,0,0,0.1) !important; border-radius: 0;">
+                        <option value="">Tutti</option>
+                        <option value="fisico" <?php echo (isset($_GET['formato']) && $_GET['formato'] === 'fisico') ? 'selected' : ''; ?>>Cartaceo</option>
+                        <option value="digitale" <?php echo (isset($_GET['formato']) && $_GET['formato'] === 'digitale') ? 'selected' : ''; ?>>Digitale</option>
+                    </select>
                     <button class="btn btn-primary border-0 px-4 fw-medium" type="submit">Cerca</button>
                 </div>
             </form>
