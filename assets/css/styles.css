@@ -477,11 +477,13 @@ body.modal-open #chatbot-window {
 
 /* tabelle: stile arrotondato e uniforme in tutto il progetto */
 
-/* contenitore che arrotonda la tabella nascondendo gli angoli in eccesso.
+/* contenitore che arrotonda la tabella consentendo lo scorrimento orizzontale su mobile.
    non aggiunge bordi né ombre perché vive già dentro una .card o una modale */
 .table-wrapper {
     border-radius: 16px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* applicato a qualsiasi tabella del progetto (Bootstrap e custom) */
@@ -528,7 +530,7 @@ body.modal-open #chatbot-window {
     background-color: rgba(163, 29, 29, 0.03);
 }
 
-/* arrotondamento gestito interamente da .table-wrapper (overflow: hidden) */
+/* arrotondamento gestito interamente da .table-wrapper (overflow-x: auto) */
 
 /* sovrascriviamo la classe Bootstrap table-light che schiaccia il nostro stile */
 .table-light th {

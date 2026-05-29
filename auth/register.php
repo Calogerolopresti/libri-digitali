@@ -6,13 +6,23 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
+// Se l'utente è già loggato, lo reindirizziamo alla home adeguata al suo ruolo
+if (isset($_SESSION['user_id'])) {
+    if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin') {
+        header('Location: ../admin/index.php');
+    } else {
+        header('Location: ../index-logged.php');
+    }
+    exit;
+}
+
 // genero il token csrf se non esiste ancora nella sessione
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// accetta solo richieste di tipo post con il bottone submit
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset(($_POST['submit']))) {
+// accetta solo richieste di tipo post (rimossa la dipendenza stretta dal name del bottone per evitare blocchi al submit da tastiera)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // verifico il token csrf prima di fare qualsiasi altra cosa
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -95,8 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset(($_POST['submit']))) {
         // hashing della password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Pulizia sessione da eventuali dati precedenti
-        unset($_SESSION['errors'], $_SESSION['old_input']);
+        // Pulizia sessione da eventuali dati precedenti (corretto old_input con previous_input)
+        unset($_SESSION['errors'], $_SESSION['previous_input']);
 
         try {
             $sql = 'INSERT INTO Utenti (nome, email, password) VALUES(?, ?, ?)';
@@ -168,7 +178,7 @@ include __DIR__ . '/../includes/head.php';
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']) ?>">
 
                         <?php if (isset($_GET['errore_registrazione'])): ?>
-                            <div class="alert alert-error mb-4">
+                            <div class="alert alert-danger mb-4">
                                 <span>Si è verificato un errore tecnico. Riprova più tardi.</span>
                             </div>
                         <?php endif; ?>

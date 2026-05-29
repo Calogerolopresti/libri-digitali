@@ -4,6 +4,17 @@ require_once __DIR__ . '/../config/db.php';
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Se l'utente è già loggato, lo reindirizziamo alla home adeguata al suo ruolo
+if (isset($_SESSION['user_id'])) {
+    if (isset($_SESSION['ruolo']) && $_SESSION['ruolo'] === 'admin') {
+        header('Location: ../admin/index.php');
+    } else {
+        header('Location: ../index-logged.php');
+    }
+    exit;
+}
+
 // inizzializzo la variabile di sessione per verificare i tentativi se non esiste già 
 if(!isset($_SESSION['tentativi'])){
     $_SESSION['tentativi']=0;

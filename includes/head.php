@@ -24,7 +24,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- CSS personalizzato del progetto -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles.css">
+    <?php
+    $css_file = __DIR__ . '/../assets/css/styles.css';
+    $css_version = file_exists($css_file) ? filemtime($css_file) : '1.0';
+    ?>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles.css?v=<?php echo $css_version; ?>">
 
     <!-- Favicon: icona rossa stile liquid glass mostrata nella tab del browser -->
     <link rel="icon"       type="image/png" sizes="32x32" href="<?php echo BASE_URL; ?>/assets/img/favicon.png">
